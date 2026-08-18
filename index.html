@@ -318,8 +318,14 @@ body.light .modal-bg{background:rgba(30,40,60,.45)}
   .builder-setup{grid-template-columns:repeat(2,1fr)}.preset-row{grid-template-columns:repeat(2,1fr)}
   .builder-summary{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:760px){.builder-setup{grid-template-columns:1fr 1fr}.pattern-editor{grid-template-columns:repeat(4,1fr)}}
+.hamburger{display:none;width:38px;height:38px;border-radius:11px;background:var(--panel);border:1px solid var(--line);align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.hamburger:hover{background:var(--panel-2)}
+.sidebar-backdrop{display:none;position:fixed;inset:0;background:rgba(5,6,9,.55);z-index:29}
+.sidebar-backdrop.open{display:block}
 @media(max-width:760px){
-  .sidebar{display:none}
+  .hamburger{display:flex}
+  .sidebar{position:fixed;left:0;top:0;z-index:30;transform:translateX(-100%);transition:transform .22s ease;box-shadow:0 0 40px rgba(0,0,0,.4)}
+  .sidebar.open{transform:translateX(0)}
   .content{padding:18px}
   .stat-grid{grid-template-columns:repeat(2,1fr)}
   .type-picker{grid-template-columns:repeat(2,1fr)}
@@ -352,14 +358,20 @@ body.light .modal-bg{background:rgba(30,40,60,.45)}
       <button data-unit="mi">MILES</button>
     </div>
     <button class="theme-btn" id="themeBtn"><span id="themeIcon">🌙</span> <span id="themeLabel">Dark mode</span></button>
+    <div style="display:flex;gap:6px;margin:8px 4px 0">
+      <button class="theme-btn" id="exportBtn" style="width:auto;flex:1;font-size:11.5px">⬇ Export</button>
+      <button class="theme-btn" id="importBtn" style="width:auto;flex:1;font-size:11.5px">⬆ Import</button>
+      <input type="file" id="importFile" accept="application/json" style="display:none">
+    </div>
     <div class="foot">
-      Elevate your RUN · v2 prototype<br>Local data — nothing leaves your device.
+      Elevate your RUN · v2 prototype<br>Local data — nothing leaves your device.<br>Export regularly to avoid losing your log.
     </div>
   </aside>
 
   <!-- MAIN -->
   <div class="main">
     <div class="topbar">
+      <button class="hamburger" id="hamburgerBtn" aria-label="Open menu">☰</button>
       <div class="title" id="viewTitle">Dashboard
         <small id="viewSub">Weekly overview &amp; recent training</small>
       </div>
@@ -382,6 +394,7 @@ body.light .modal-bg{background:rgba(30,40,60,.45)}
   </div>
 </div>
 
+<div class="sidebar-backdrop" id="sidebarBackdrop"></div>
 <div class="modal-bg" id="modalBg">
   <div class="modal" id="modal"></div>
 </div>
@@ -421,7 +434,7 @@ let shareMode = false;   // athlete read-only view
 let currentView = 'dashboard';
 
 /* ---------- Persistence ---------- */
-function save(){ localStorage.setItem('elevate_v3', JSON.stringify(state)); }
+function save(){ if(linkMode) return; localStorage.setItem('elevate_v3', JSON.stringify(state)); }
 function load(){
   const raw = localStorage.getItem('elevate_v3');
   if(raw){ try{ state = JSON.parse(raw); migrate(); return true; }catch(e){} }
@@ -434,9 +447,42 @@ function migrate(){
   }); });
 }
 
+/* ---------- Backup: export / import ---------- */
+function exportData(){
+  const payload={app:'elevate-your-run',exportedAt:new Date().toISOString(),state};
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download=`elevate-your-run-backup-${todayISO()}.json`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+  toast('Backup downloaded ✓');
+}
+function importData(file){
+  if(!file) return;
+  const reader=new FileReader();
+  reader.onload=()=>{
+    try{
+      const parsed=JSON.parse(reader.result);
+      const incoming = parsed && parsed.state ? parsed.state : parsed;   // accept raw state too
+      if(!incoming || !Array.isArray(incoming.athletes)) throw new Error('bad shape');
+      if(!confirm('Importing will replace all current data in this browser with the backup file. Continue?')) return;
+      state=incoming; migrate();
+      if(!state.activeAthlete && state.athletes.length) state.activeAthlete=state.athletes[0].id;
+      if(!state.theme) state.theme='dark';
+      save(); applyTheme(); setView('dashboard');
+      toast('Data imported ✓');
+    }catch(e){ toast('Could not read that file — is it an Elevate backup?'); }
+  };
+  reader.readAsText(file);
+}
+
 /* ---------- Helpers ---------- */
 const $ = s => document.querySelector(s);
 const uid = () => Math.random().toString(36).slice(2,10);
+// escape any user-entered text before it's dropped into innerHTML/attributes
+const ESC_MAP={'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'};
+function esc(str){ return String(str==null?'':str).replace(/[&<>"']/g, c=>ESC_MAP[c]); }
 const KM_PER_MI = 1.609344;
 function toUnit(km){ return state.unit==='mi' ? km/KM_PER_MI : km; }
 function unitLabel(){ return state.unit==='mi' ? 'mi' : 'km'; }
@@ -526,8 +572,6 @@ function seedPlan(a, level){
   const base = level==='beginner'?3.5 : level==='intermediate'?9 : 16;
   const growth = 1.5;
   for(let w=0; w<2; w++){
-    const monday = mondayOffset(-((new Date().getDay()+6)%7) + (w+ (todayISO()>mondayOffset(0)?0:0))*7 + 7); // next weeks
-    const mon = mondayOffset(7*(w+1) - ((new Date().getDay()+6)%7) + ((new Date().getDay()+6)%7)); // simplified below
     const start = mondayOffset(0); // this monday
     const wkMon = addDays(start, 7*(w+1)); // next mondays
     planRun(a, addDays(wkMon,0),'easy', base*growth, base*growth*(level==='elite'?4.6:6.2), 'Keep it conversational — nose-breathing pace.');
@@ -652,7 +696,7 @@ function render(){
 }
 function renderAthleteSelect(){
   const sel=$('#athleteSelect');
-  sel.innerHTML=state.athletes.map(a=>`<option value="${a.id}" ${a.id===state.activeAthlete?'selected':''}>${a.name}</option>`).join('');
+  sel.innerHTML=state.athletes.map(a=>`<option value="${a.id}" ${a.id===state.activeAthlete?'selected':''}>${esc(a.name)}</option>`).join('');
   const a=currentAthlete(); const av=$('#topAv');
   if(a){ av.textContent=initials(a.name); av.style.background=avatarColor(a.id); }
 }
@@ -670,7 +714,7 @@ function renderDashboard(a){
   let raceHtml='';
   if(a.raceDate){
     const days=Math.ceil((parseISO(a.raceDate)-new Date())/86400000);
-    raceHtml=`<div class="card stat"><h3>${a.goalRace||'Goal Race'}</h3>
+    raceHtml=`<div class="card stat"><h3>${esc(a.goalRace)||'Goal Race'}</h3>
       <div class="num">${days>=0?days:0}<small> days</small></div>
       <div class="sub">${parseISO(a.raceDate).toLocaleDateString('en-CA',{month:'long',day:'numeric',year:'numeric'})}</div></div>`;
   }
@@ -707,7 +751,7 @@ function renderDashboard(a){
           </div>
         </div>
         <div class="week-dots" id="weekDots"></div>
-        <div class="help">A week counts once ${a.name.split(' ')[0]} logs at least one run.</div>
+        <div class="help">A week counts once ${esc(a.name.split(' ')[0])} logs at least one run.</div>
       </div>
     </div>
 
@@ -737,9 +781,9 @@ function runItemHTML(r,opts={}){
   const isRest = !!t.isRest;
   const strideTxt = r.strides ? ` · +${r.strides.count}×${r.strides.length} ${r.strides.mode==='hills'?'hill sprints':'strides'}` : '';
   let sub;
-  if(isRest){ sub=(planned?r.coachNote:r.notes) || 'Day off — recovery & adaptation'; }
-  else if(r.workout){ sub=`Workout: ${r.workout.sets.map(x=>`${x.reps}×${x.effort}${x.target?' @'+x.target:''}`).join(' + ')}${strideTxt}`; }
-  else { sub=((planned?r.coachNote:r.notes) || t.label)+strideTxt; }
+  if(isRest){ sub=esc((planned?r.coachNote:r.notes)) || 'Day off — recovery &amp; adaptation'; }
+  else if(r.workout){ sub=`Workout: ${r.workout.sets.map(x=>`${x.reps}×${esc(x.effort)}${x.target?' @'+esc(x.target):''}`).join(' + ')}${esc(strideTxt)}`; }
+  else { sub=esc((planned?r.coachNote:r.notes) || t.label)+esc(strideTxt); }
   const tag = planned ? `<span class="tag tag-planned">Planned</span>` : (opts.showDone?`<span class="tag tag-done">Done</span>`:'');
   const metrics = isRest
     ? `<div><div class="m">—</div><div class="l">rest day</div></div>`
@@ -836,7 +880,7 @@ function renderPlan(a){
   let weeksHtml='';
   const keys=Object.keys(groups).sort();
   if(!keys.length){
-    weeksHtml=`<div class="card"><div class="empty"><div class="e-ic">🧱</div><div style="font-weight:700;color:var(--text)">No plan yet</div><div>Build a full multi-week training block for ${a.name.split(' ')[0]} in seconds.</div>${shareMode?'':`<div style="margin-top:16px"><button class="btn btn-primary" onclick="openPlanBuilder()">🧱 Open Plan Builder</button></div>`}</div></div>`;
+    weeksHtml=`<div class="card"><div class="empty"><div class="e-ic">🧱</div><div style="font-weight:700;color:var(--text)">No plan yet</div><div>Build a full multi-week training block for ${esc(a.name.split(' ')[0])} in seconds.</div>${shareMode?'':`<div style="margin-top:16px"><button class="btn btn-primary" onclick="openPlanBuilder()">🧱 Open Plan Builder</button></div>`}</div></div>`;
   }
   for(const k of keys){
     const runs=groups[k];
@@ -847,7 +891,7 @@ function renderPlan(a){
   }
   $('#view-plan').innerHTML=`
     <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:6px">
-      <div style="color:var(--muted);font-size:13.5px">Prescribe upcoming sessions for <b style="color:var(--text)">${a.name}</b>. Athletes see these as targets, then log actuals against them.</div>
+      <div style="color:var(--muted);font-size:13.5px">Prescribe upcoming sessions for <b style="color:var(--text)">${esc(a.name)}</b>. Athletes see these as targets, then log actuals against them.</div>
       ${shareMode?'':`<div style="display:flex;gap:10px;flex-wrap:wrap">
         <button class="btn btn-ghost" onclick="openRunModal(null,null,'planned')">＋ Single Workout</button>
         <button class="btn btn-primary" onclick="openPlanBuilder()">🧱 Plan Builder</button></div>`}
@@ -983,7 +1027,7 @@ function renderBuilderModal(){
       ${Object.keys(TYPES).map(t=>`<option value="${t}" ${b.pattern[i]===t?'selected':''}>${TYPES[t].icon} ${TYPES[t].label}</option>`).join('')}
     </select></div>`).join('');
   openModal(`
-    <div class="modal-head"><h2>🧱 Plan Builder — ${a.name.split(' ')[0]}</h2><button class="close" onclick="closeModal()">×</button></div>
+    <div class="modal-head"><h2>🧱 Plan Builder — ${esc(a.name.split(' ')[0])}</h2><button class="close" onclick="closeModal()">×</button></div>
     <div class="modal-body">
       <div class="bld-section">
         <span class="bld-legend">1 · Start from a template</span>
@@ -1186,9 +1230,9 @@ function coachInsight(a){
   const trend=recent>prior*1.05?'building nicely 📈':recent<prior*0.9?'in a down/recovery block 📉':'holding steady ➡️';
   const dist=distByType(a), total=Object.values(dist).reduce((s,v)=>s+v,0)||1;
   const easyPct=((dist.easy+dist.long)/total*100).toFixed(0);
-  return `<b>${a.name.split(' ')[0]}</b> is <b>${trend}</b> — averaging <b>${fmtDist(recent)} ${unitLabel()}</b>/week over the last month vs <b>${fmtDist(prior)} ${unitLabel()}</b> the month before.<br><br>
+  return `<b>${esc(a.name.split(' ')[0])}</b> is <b>${trend}</b> — averaging <b>${fmtDist(recent)} ${unitLabel()}</b>/week over the last month vs <b>${fmtDist(prior)} ${unitLabel()}</b> the month before.<br><br>
     Easy/aerobic work is <b>${easyPct}%</b> of volume. The classic target is ~80% easy / 20% hard — ${easyPct>=75?'right in the sweet spot. ✅':'consider adding easy volume to protect against injury. ⚠️'}<br><br>
-    Level: <b style="text-transform:capitalize">${a.level}</b> · Goal: <b>${a.goalRace||'—'}</b>`;
+    Level: <b style="text-transform:capitalize">${a.level}</b> · Goal: <b>${esc(a.goalRace)||'—'}</b>`;
 }
 
 /* ---------- Training Log ---------- */
@@ -1259,11 +1303,11 @@ function renderAthletes(){
     const yr=yearDist(a); const {cur}=weekStats(a); const st=streak(a);
     let daysHtml='';
     if(a.raceDate){ const days=Math.ceil((parseISO(a.raceDate)-new Date())/86400000);
-      daysHtml=`<div class="goal-row">🏁 <span>${a.goalRace}</span> · <b>${days>=0?days+' days':'done'}</b></div>`; }
+      daysHtml=`<div class="goal-row">🏁 <span>${esc(a.goalRace)}</span> · <b>${days>=0?days+' days':'done'}</b></div>`; }
     return `<div class="ath-card">
       <div class="top" data-ath="${a.id}">
-        <div class="av" style="background:${avatarColor(a.id)}">${initials(a.name)}</div>
-        <div style="flex:1"><div class="nm">${a.name}</div><div class="lv"><span class="lvl-badge lvl-${a.level}">${a.level}</span></div></div>
+        <div class="av" style="background:${avatarColor(a.id)}">${esc(initials(a.name))}</div>
+        <div style="flex:1"><div class="nm">${esc(a.name)}</div><div class="lv"><span class="lvl-badge lvl-${a.level}">${a.level}</span></div></div>
         <button class="run-del" onclick="event.stopPropagation();editAthlete('${a.id}')" title="Edit">✏️</button>
       </div>
       ${daysHtml}
@@ -1274,7 +1318,8 @@ function renderAthletes(){
       </div>
       <div class="ath-actions">
         <button class="btn btn-ghost" onclick="switchAthlete('${a.id}')">Open</button>
-        <button class="btn btn-primary" onclick="enterShare('${a.id}')">🔗 Share view</button>
+        <button class="btn btn-ghost" onclick="enterShare('${a.id}')">👁 Preview</button>
+        <button class="btn btn-primary" onclick="shareLink('${a.id}')">🔗 Share link</button>
       </div></div>`;
   }).join('');
   $('#view-athletes').innerHTML=`
@@ -1290,23 +1335,70 @@ function switchAthlete(id){ state.activeAthlete=id; save(); setView('dashboard')
 function enterShare(id){
   state.activeAthlete=id; shareMode=true; document.body.classList.add('body-share'); save(); setView('share');
 }
-function exitShare(){ shareMode=false; document.body.classList.remove('body-share'); setView('athletes'); }
+function exitShare(){
+  shareMode=false; document.body.classList.remove('body-share');
+  if(linkMode){ location.hash=''; location.reload(); return; }   // link-loaded view has no roster to go back to
+  setView('athletes');
+}
+// build a real, self-contained shareable link: the athlete's data is encoded
+// straight into the URL hash, so opening the link loads a read-only snapshot —
+// no server, no login. Whoever opens it needs this same HTML file at that URL.
+function shareLink(id){
+  const a=state.athletes.find(x=>x.id===id); if(!a) return;
+  const snapshot={v:1, unit:state.unit, theme:state.theme, athlete:JSON.parse(JSON.stringify(a))};
+  let b64='';
+  try{ b64=btoa(unescape(encodeURIComponent(JSON.stringify(snapshot)))); }
+  catch(e){ toast('Could not build link'); return; }
+  const url=location.origin+location.pathname+'#share='+b64;
+  openModal(`
+    <div class="modal-head"><h2>🔗 Share link — ${esc(a.name)}</h2><button class="close" onclick="closeModal()">×</button></div>
+    <div class="modal-body">
+      <div class="help" style="margin-bottom:10px">Anyone who opens this link — using this same HTML file — sees ${esc(a.name.split(' ')[0])}'s read-only progress. No login, no edit controls. It's a snapshot: re-share after big updates. If this file lives on your computer rather than a website, send the .html file alongside the link.</div>
+      <div class="field"><label>Shareable link</label><input id="share-url" readonly value="${esc(url)}" onclick="this.select()"></div>
+    </div>
+    <div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal()">Close</button>
+      <button class="btn btn-primary" onclick="copyShareLink()">📋 Copy link</button></div>`);
+}
+function copyShareLink(){
+  const inp=$('#share-url'); inp.select(); inp.setSelectionRange(0,99999);
+  const done=()=>{ toast('Link copied ✓'); };
+  if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(inp.value).then(done).catch(()=>{ document.execCommand('copy'); done(); }); }
+  else { document.execCommand('copy'); done(); }
+}
+// try to load a shared snapshot from the URL hash before touching localStorage
+let linkMode=false;
+function tryLoadShareLink(){
+  const h=location.hash;
+  if(!h || h.indexOf('#share=')!==0) return false;
+  try{
+    const json=decodeURIComponent(escape(atob(h.slice(7))));
+    const snap=JSON.parse(json);
+    if(!snap || !snap.athlete || !snap.athlete.id) return false;
+    linkMode=true;
+    state={unit:snap.unit||'km', theme:snap.theme||'dark', activeAthlete:snap.athlete.id,
+      calMonth:new Date().getMonth(), calYear:new Date().getFullYear(), athletes:[snap.athlete]};
+    migrate();
+    shareMode=true;
+    document.body.classList.add('body-share');
+    return true;
+  }catch(e){ return false; }
+}
 function renderShare(a){
   const yr=yearDist(a), mo=monthDist(a); const {cur}=weekStats(a); const st=streak(a);
   const recent=[...doneRuns(a)].sort((x,y)=>y.date.localeCompare(x.date)).slice(0,5);
   const nextPlan=[...plannedRuns(a)].filter(r=>r.date>=todayISO()).sort((x,y)=>x.date.localeCompare(y.date)).slice(0,3);
   let raceHtml='';
   if(a.raceDate){ const days=Math.ceil((parseISO(a.raceDate)-new Date())/86400000);
-    raceHtml=`<div class="card stat"><h3>${a.goalRace}</h3><div class="num">${days>=0?days:0}<small> days</small></div><div class="sub">${parseISO(a.raceDate).toLocaleDateString('en-CA',{month:'long',day:'numeric'})}</div></div>`; }
+    raceHtml=`<div class="card stat"><h3>${esc(a.goalRace)}</h3><div class="num">${days>=0?days:0}<small> days</small></div><div class="sub">${parseISO(a.raceDate).toLocaleDateString('en-CA',{month:'long',day:'numeric'})}</div></div>`; }
   $('#view-share').innerHTML=`
     <div class="share-banner">
       <span style="font-size:24px">🔗</span>
-      <div><div class="bt">Read-only athlete view</div><div class="bs">This is exactly what ${a.name.split(' ')[0]} sees — progress, plan & streaks. No editing controls.</div></div>
-      <button class="btn" onclick="exitShare()">← Back to coach view</button>
+      <div><div class="bt">Read-only athlete view</div><div class="bs">This is exactly what ${esc(a.name.split(' ')[0])} sees — progress, plan &amp; streaks. No editing controls.</div></div>
+      ${linkMode?'':'<button class="btn" onclick="exitShare()">← Back to coach view</button>'}
     </div>
     <div class="share-hero">
-      <div class="av" style="background:${avatarColor(a.id)}">${initials(a.name)}</div>
-      <div><div class="nm">${a.name}</div><div style="color:var(--muted);margin-top:2px"><span class="lvl-badge lvl-${a.level}">${a.level}</span> · coached progress</div></div>
+      <div class="av" style="background:${avatarColor(a.id)}">${esc(initials(a.name))}</div>
+      <div><div class="nm">${esc(a.name)}</div><div style="color:var(--muted);margin-top:2px"><span class="lvl-badge lvl-${a.level}">${a.level}</span> · coached progress</div></div>
     </div>
     <div class="grid stat-grid">
       <div class="card stat"><h3>This Week</h3><div class="num">${fmtDist(sumDist(cur))}<small> ${unitLabel()}</small></div><div class="sub">${cur.length} sessions</div></div>
@@ -1344,7 +1436,7 @@ function openRunModal(dateISO, editId=null, forceMode=null){
   const cd = r&&r.workout ? r.workout.cooldown : {dist:1.5,dur:9};
   const isPlan = draftMode==='planned';
   openModal(`
-    <div class="modal-head"><h2>${r?'Edit':(isPlan?'Prescribe':'Log')} ${isPlan?'Workout':'Run'} — ${a.name.split(' ')[0]}</h2><button class="close" onclick="closeModal()">×</button></div>
+    <div class="modal-head"><h2>${r?'Edit':(isPlan?'Prescribe':'Log')} ${isPlan?'Workout':'Run'} — ${esc(a.name.split(' ')[0])}</h2><button class="close" onclick="closeModal()">×</button></div>
     <div class="modal-body">
       <div class="mode-switch" id="modeSwitch">
         <button data-mode="done" class="${!isPlan?'sel':''}">✅ Log completed</button>
@@ -1395,10 +1487,10 @@ function openRunModal(dateISO, editId=null, forceMode=null){
       <div id="doneFields" style="display:${isPlan?'none':'block'}">
         <div class="field" id="rpeField" style="display:${TYPES[type].isRest?'none':'block'}"><label>How did it feel? (RPE 1–10)</label>
           <div class="rpe-row" id="rpeRow">${[1,2,3,4,5,6,7,8,9,10].map(n=>`<div class="rp ${r&&r.rpe===n?'sel':''}" data-rpe="${n}">${n}</div>`).join('')}</div></div>
-        <div class="field"><label>Notes / diary</label><textarea id="f-notes" placeholder="Weather, how the legs felt, splits, mindset…">${r&&r.status!=='planned'?r.notes:''}</textarea></div>
+        <div class="field"><label>Notes / diary</label><textarea id="f-notes" placeholder="Weather, how the legs felt, splits, mindset…">${r&&r.status!=='planned'?esc(r.notes):''}</textarea></div>
       </div>
       <div id="planFields" style="display:${isPlan?'block':'none'}">
-        <div class="field"><label>Coach note to athlete</label><textarea id="f-coachnote" placeholder="Purpose of the session, cues, how it should feel…">${r&&r.status==='planned'?(r.coachNote||''):''}</textarea>
+        <div class="field"><label>Coach note to athlete</label><textarea id="f-coachnote" placeholder="Purpose of the session, cues, how it should feel…">${r&&r.status==='planned'?esc(r.coachNote||''):''}</textarea>
           <div class="help">This shows up as guidance in the athlete's share view and calendar.</div></div>
       </div>
     </div>
@@ -1429,9 +1521,9 @@ function renderSetRows(){
   const el=$('#setRows'); if(!el) return;
   el.innerHTML=draftSets.map((s,i)=>`<div class="set-row">
     <input type="number" value="${s.reps}" data-i="${i}" data-k="reps" placeholder="6">
-    <input type="text" value="${s.effort}" data-i="${i}" data-k="effort" placeholder="400m / 3min">
-    <input type="text" value="${s.target||''}" data-i="${i}" data-k="target" placeholder="90s / hard">
-    <input type="text" value="${s.rest||''}" data-i="${i}" data-k="rest" placeholder="90s jog">
+    <input type="text" value="${esc(s.effort)}" data-i="${i}" data-k="effort" placeholder="400m / 3min">
+    <input type="text" value="${esc(s.target||'')}" data-i="${i}" data-k="target" placeholder="90s / hard">
+    <input type="text" value="${esc(s.rest||'')}" data-i="${i}" data-k="rest" placeholder="90s jog">
     <button class="x" onclick="removeSet(${i})">×</button></div>`).join('');
   el.querySelectorAll('input').forEach(inp=>{ inp.oninput=()=>{ draftSets[+inp.dataset.i][inp.dataset.k]= inp.dataset.k==='reps'?+inp.value:inp.value; }; });
 }
@@ -1482,8 +1574,8 @@ function openRunDetail(id){
   const t=TYPES[r.type]; const planned=r.status==='planned'; const isRest=!!t.isRest;
   let wk='';
   if(r.workout){
-    const setHtml=r.workout.sets.map(s=>`<div class="wk-set"><span class="rep">${s.reps}×</span><span style="font-weight:700">${s.effort}</span>
-      ${s.target?`<span style="color:var(--muted)">@ ${s.target}</span>`:''}${s.rest?`<span style="margin-left:auto;color:var(--muted)">rest ${s.rest}</span>`:''}</div>`).join('');
+    const setHtml=r.workout.sets.map(s=>`<div class="wk-set"><span class="rep">${s.reps}×</span><span style="font-weight:700">${esc(s.effort)}</span>
+      ${s.target?`<span style="color:var(--muted)">@ ${esc(s.target)}</span>`:''}${s.rest?`<span style="margin-left:auto;color:var(--muted)">rest ${esc(s.rest)}</span>`:''}</div>`).join('');
     wk=`<div class="wk-block"><div class="h">🔥 Warm-up</div>${r.workout.warmup.dist||r.workout.warmup.dur?`${r.workout.warmup.dist} km · ${r.workout.warmup.dur} min easy`:'—'}</div>
       <div class="wk-block"><div class="h">⚡ Main set</div>${setHtml||'—'}</div>
       <div class="wk-block"><div class="h">💧 Cool-down</div>${r.workout.cooldown.dist||r.workout.cooldown.dur?`${r.workout.cooldown.dist} km · ${r.workout.cooldown.dur} min easy`:'—'}</div>`;
@@ -1500,8 +1592,8 @@ function openRunDetail(id){
        <div class="dm"><div class="n">${paceStr(r.distance,r.duration)}</div><div class="l">/${unitLabel()} pace</div></div>
        <div class="dm"><div class="n">${r.rpe||'—'}</div><div class="l">RPE effort</div></div>`;
   const stridesBlk = r.strides?`<div class="wk-block"><div class="h">${r.strides.mode==='hills'?'⛰️ Hill sprints':'🏃💨 Strides'}</div><div style="line-height:1.6"><b>${r.strides.count} × ${r.strides.length}</b> ${r.strides.mode==='hills'?'hill sprints':'strides'} after the run — build speed &amp; strength.</div></div>`:'';
-  const coachBlk = planned&&r.coachNote?`<div class="wk-block"><div class="h">🎯 Coach note</div><div style="line-height:1.6">${r.coachNote.replace(/</g,'&lt;')}</div></div>`:'';
-  const diaryBlk = !planned&&r.notes?`<div class="wk-block"><div class="h">📝 Diary</div><div style="line-height:1.6">${r.notes.replace(/</g,'&lt;')}</div></div>`:'';
+  const coachBlk = planned&&r.coachNote?`<div class="wk-block"><div class="h">🎯 Coach note</div><div style="line-height:1.6">${esc(r.coachNote)}</div></div>`:'';
+  const diaryBlk = !planned&&r.notes?`<div class="wk-block"><div class="h">📝 Diary</div><div style="line-height:1.6">${esc(r.notes)}</div></div>`:'';
   let foot;
   if(shareMode){ foot=`<button class="btn btn-primary" onclick="closeModal()">Done</button>`; }
   else if(planned){ foot=`<button class="btn btn-ghost" style="color:var(--interval)" onclick="deleteRun('${r.id}');closeModal()">Delete</button>
@@ -1534,7 +1626,7 @@ function athleteForm(id){
   openModal(`
     <div class="modal-head"><h2>${a?'Edit':'Add'} Athlete</h2><button class="close" onclick="closeModal()">×</button></div>
     <div class="modal-body">
-      <div class="field"><label>Name</label><input id="a-name" value="${a?a.name:''}" placeholder="e.g. Jordan Reyes"></div>
+      <div class="field"><label>Name</label><input id="a-name" value="${a?esc(a.name):''}" placeholder="e.g. Jordan Reyes"></div>
       <div class="field"><label>Experience level</label>
         <select id="a-level">
           <option value="beginner" ${a&&a.level==='beginner'?'selected':''}>Beginner — building the habit</option>
@@ -1542,7 +1634,7 @@ function athleteForm(id){
           <option value="elite" ${a&&a.level==='elite'?'selected':''}>Elite — high volume / competitive</option>
         </select><div class="help">Level tailors suggested weekly targets and coach-note benchmarks.</div></div>
       <div class="field-row">
-        <div class="field"><label>Goal race</label><input id="a-race" value="${a?a.goalRace||'':''}" placeholder="e.g. Half Marathon"></div>
+        <div class="field"><label>Goal race</label><input id="a-race" value="${a?esc(a.goalRace||''):''}" placeholder="e.g. Half Marathon"></div>
         <div class="field"><label>Race date</label><input type="date" id="a-date" value="${a?a.raceDate||'':''}"></div></div>
       <div class="field"><label>Weekly target (${unitLabel()})</label><input type="number" id="a-target" value="${a?fmtDist(a.weeklyTarget||0,0):defaultTarget('beginner')}" placeholder="20"></div>
     </div>
@@ -1568,6 +1660,10 @@ function removeAthlete(id){
   save(); closeModal(); render(); toast('Athlete removed');
 }
 
+/* ---------- Mobile sidebar drawer ---------- */
+function openSidebar(){ document.querySelector('.sidebar').classList.add('open'); $('#sidebarBackdrop').classList.add('open'); }
+function closeSidebar(){ document.querySelector('.sidebar').classList.remove('open'); $('#sidebarBackdrop').classList.remove('open'); }
+
 /* ---------- Theme ---------- */
 function applyTheme(){
   const light=state.theme==='light';
@@ -1581,19 +1677,25 @@ function toggleTheme(){ state.theme=state.theme==='light'?'dark':'light'; applyT
    BOOT
    ============================================================ */
 function boot(){
-  if(!load()){ seed(); save(); }
+  const isLink=tryLoadShareLink();
+  if(!isLink && !load()){ seed(); save(); }
   if(!state.theme) state.theme='dark';
   applyTheme();
-  document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>{ if(shareMode) exitShare(); setView(b.dataset.view); });
+  document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>{ if(shareMode) exitShare(); setView(b.dataset.view); closeSidebar(); });
+  $('#hamburgerBtn').onclick=openSidebar;
+  $('#sidebarBackdrop').onclick=closeSidebar;
+  $('#exportBtn').onclick=exportData;
+  $('#importBtn').onclick=()=>$('#importFile').click();
+  $('#importFile').onchange=e=>{ importData(e.target.files[0]); e.target.value=''; };
   document.querySelectorAll('#unitToggle button').forEach(b=>b.onclick=()=>{
     state.unit=b.dataset.unit; document.querySelectorAll('#unitToggle button').forEach(x=>x.classList.toggle('active',x===b)); save(); render(); });
   document.querySelectorAll('#unitToggle button').forEach(b=>b.classList.toggle('active',b.dataset.unit===state.unit));
   $('#themeBtn').onclick=toggleTheme;
   $('#athleteSelect').onchange=e=>{ state.activeAthlete=e.target.value; save(); render(); };
   $('#addRunBtn').onclick=()=>openRunModal(todayISO());
-  document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeModal(); });
-  window.addEventListener('resize',()=>{ if(['dashboard','progression','share'].includes(currentView)) render(); });
-  setView('dashboard');
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closeModal(); closeSidebar(); } });
+  window.addEventListener('resize',()=>{ if(window.innerWidth>760) closeSidebar(); if(['dashboard','progression','share'].includes(currentView)) render(); });
+  setView(isLink?'share':'dashboard');
 }
 document.addEventListener('DOMContentLoaded',boot);
 
