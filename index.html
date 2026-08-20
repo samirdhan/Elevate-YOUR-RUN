@@ -3,6 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Elevate your RUN — a self-contained coach training log: multi-athlete tracking, structured workouts, a training-block builder, calendar, progression charts, and read-only shareable athlete links. All data stays in your browser.">
+<meta name="theme-color" content="#0f1115">
+<meta property="og:title" content="Elevate your RUN — Coach Training Log">
+<meta property="og:description" content="Plan, log and share running training — multi-athlete, structured workouts, calendar, progression charts.">
+<meta property="og:type" content="website">
 <title>Elevate your RUN — Coach Training Log</title>
 <style>
 /* ===================== THEME TOKENS ===================== */
@@ -158,6 +163,46 @@ a{color:inherit}
 .cal-cell.today .dn{color:var(--accent)}
 .cal-chip{font-size:10.5px;font-weight:700;padding:3px 6px;border-radius:6px;color:#fff;margin-top:5px;display:flex;justify-content:space-between;gap:4px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 .cal-chip.plan{background:transparent!important;border:1.5px dashed currentColor;padding:2px 5px}
+.cal-chip.race{background:transparent!important;border:1.5px solid var(--race);color:var(--race);font-weight:800}
+.pace-toggle{background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:12.5px;font-weight:700;color:var(--text);cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.pace-toggle:hover{background:var(--panel)}
+/* ===================== PACE CALCULATOR ===================== */
+.pc-input{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:14px;align-items:end}
+.pc-time{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.pc-vdot{display:flex;align-items:center;gap:18px;background:linear-gradient(135deg,rgba(255,107,53,.14),rgba(255,183,3,.06));border:1px solid var(--line);border-radius:14px;padding:16px 20px;margin:18px 0}
+.pc-vdot .vnum{font-size:44px;font-weight:800;letter-spacing:-2px;line-height:1;color:var(--accent)}
+.pc-vdot .vlab{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.8px}
+.pc-vdot .vdesc{font-size:12.5px;color:var(--muted);line-height:1.5}
+.pace-table{width:100%;border:1px solid var(--line);border-radius:14px;overflow:hidden;border-collapse:separate;border-spacing:0}
+.pace-table th{background:var(--panel-2);font-size:10.5px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;padding:11px 12px;text-align:left;border-bottom:1px solid var(--line)}
+.pace-table td{padding:12px;border-bottom:1px solid var(--line);font-size:13.5px;vertical-align:middle}
+.pace-table tr:last-child td{border-bottom:none}
+.pace-table .zone{font-weight:800;display:flex;align-items:center;gap:9px}
+.pace-table .zdot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+.pace-table .zp{font-size:11.5px;color:var(--muted);font-weight:600}
+.pace-table .pace-val{font-weight:800;font-size:15px;font-variant-numeric:tabular-nums}
+.pace-table .split{color:var(--muted);font-variant-numeric:tabular-nums;font-weight:600}
+.pace-use{padding:6px 12px;border-radius:8px;background:var(--accent);color:#fff;font-size:11.5px;font-weight:800;border:none;cursor:pointer}
+.pace-use:hover{filter:brightness(1.08)}
+.pace-legend{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:16px}
+.pace-legend .pl{background:var(--panel-2);border:1px solid var(--line);border-radius:11px;padding:11px 13px;font-size:12px;color:var(--muted);line-height:1.5}
+.pace-legend .pl b{color:var(--text)}
+.pred-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:6px}
+.pred-card{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:13px 10px;text-align:center}
+.pred-card .pd{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+.pred-card .pt{font-size:17px;font-weight:800;margin-top:5px;font-variant-numeric:tabular-nums}
+.pc-open-btn{display:inline-flex;align-items:center;gap:7px;padding:9px 13px;border-radius:10px;background:var(--panel-2);border:1px solid var(--line);color:var(--text);font-weight:700;font-size:12.5px;cursor:pointer}
+.pc-open-btn:hover{border-color:var(--accent)}
+.pace-helper{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:13px 14px;margin-top:14px}
+.pace-helper .ph-h{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.pace-chips{display:flex;gap:8px;flex-wrap:wrap}
+.pace-chip{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:20px;background:var(--panel);border:1px solid var(--line);font-size:12.5px;font-weight:700;transition:.12s;cursor:pointer}
+.pace-chip:hover{border-color:var(--accent);transform:translateY(-1px)}
+.pace-chip .cdot{width:9px;height:9px;border-radius:3px}
+.pace-chip .cv{font-variant-numeric:tabular-nums;color:var(--muted)}
+.pace-chip small{color:var(--muted);font-weight:600}
+@media(max-width:1000px){.pc-input{grid-template-columns:1fr 1fr}.pred-grid{grid-template-columns:repeat(3,1fr)}.pace-legend{grid-template-columns:1fr}}
+.cal-cell.race-day{border-color:var(--race);border-width:2px}
 .cal-cell .rest{position:absolute;bottom:7px;right:9px;font-size:10px;color:var(--muted)}
 
 /* athletes */
@@ -217,6 +262,10 @@ body.light .modal-bg{background:rgba(30,40,60,.45)}
 .rpe-row{display:flex;gap:6px}
 .rpe-row .rp{flex:1;padding:9px 0;border-radius:9px;background:var(--panel-2);border:1px solid var(--line);text-align:center;font-weight:700;font-size:13px}
 .rpe-row .rp.sel{background:var(--accent);color:#fff;border-color:transparent}
+.race-row{display:grid;grid-template-columns:1fr 160px 30px;gap:8px;align-items:center;margin-bottom:8px}
+.race-row input{padding:9px 11px;font-size:13px}
+.race-row .x{color:var(--muted);text-align:center;font-size:16px;border-radius:7px;height:100%}
+.race-row .x:hover{color:var(--interval)}
 
 /* workout builder */
 .wb{background:var(--panel-2);border:1px dashed var(--line);border-radius:14px;padding:16px;margin-top:6px}
@@ -358,6 +407,7 @@ body.light .modal-bg{background:rgba(30,40,60,.45)}
       <button data-unit="mi">MILES</button>
     </div>
     <button class="theme-btn" id="themeBtn"><span id="themeIcon">🌙</span> <span id="themeLabel">Dark mode</span></button>
+    <button class="theme-btn" id="paceBtn" style="margin-top:8px">🧮 Pace Calculator</button>
     <div style="display:flex;gap:6px;margin:8px 4px 0">
       <button class="theme-btn" id="exportBtn" style="width:auto;flex:1;font-size:11.5px">⬇ Export</button>
       <button class="theme-btn" id="importBtn" style="width:auto;flex:1;font-size:11.5px">⬆ Import</button>
@@ -437,15 +487,42 @@ let currentView = 'dashboard';
 function save(){ if(linkMode) return; localStorage.setItem('elevate_v3', JSON.stringify(state)); }
 function load(){
   const raw = localStorage.getItem('elevate_v3');
-  if(raw){ try{ state = JSON.parse(raw); migrate(); return true; }catch(e){} }
+  if(raw){ try{ state = JSON.parse(raw); migrate(); save(); return true; }catch(e){} }
   return false;
 }
-// defensive: convert any legacy 'recovery' runs into rest days
+// defensive: convert any legacy 'recovery' runs into rest days, and legacy single-race
+// athletes into the races[] array (keeping goalRace/raceDate mirrored for old UI reads)
 function migrate(){
-  (state.athletes||[]).forEach(a=>{ (a.runs||[]).forEach(r=>{
-    if(r.type==='recovery'){ r.type='rest'; r.distance=0; r.duration=0; r.workout=null; }
-  }); });
+  (state.athletes||[]).forEach(a=>{
+    (a.runs||[]).forEach(r=>{
+      if(r.type==='recovery'){ r.type='rest'; r.distance=0; r.duration=0; r.workout=null; }
+    });
+    if(!Array.isArray(a.races)){
+      a.races = a.goalRace ? [{id:uid(), name:a.goalRace, date:a.raceDate||''}] : [];
+    }
+    // legacy: earlier build stored a free-form {distanceKm,timeSec} paceRef —
+    // convert to the {distKey,timeSec} benchmark format by nearest standard distance
+    if(!a.benchmark && a.paceRef && a.paceRef.distanceKm && a.paceRef.timeSec){
+      let best=RACE_DISTS[0], bestDiff=Infinity;
+      RACE_DISTS.forEach(d=>{ const diff=Math.abs(d.m-a.paceRef.distanceKm*1000); if(diff<bestDiff){ bestDiff=diff; best=d; } });
+      a.benchmark={distKey:best.k, timeSec:a.paceRef.timeSec};
+    }
+    delete a.paceRef;
+    if(a.benchmark===undefined) a.benchmark=null;
+    syncPrimaryRace(a);
+  });
 }
+// pick the soonest upcoming race (or, if none upcoming, the most recent past one) and
+// mirror it onto goalRace/raceDate so existing "days to race" widgets keep working unchanged
+function syncPrimaryRace(a){
+  const races=(a.races||[]).filter(r=>r.date).slice().sort((x,y)=>x.date.localeCompare(y.date));
+  if(!races.length){ a.goalRace=''; a.raceDate=''; return; }
+  const today=todayISO();
+  const upcoming=races.find(r=>r.date>=today);
+  const pick = upcoming || races[races.length-1];
+  a.goalRace=pick.name; a.raceDate=pick.date;
+}
+function upcomingRaces(a){ const t=todayISO(); return (a.races||[]).filter(r=>r.date>=t).sort((x,y)=>x.date.localeCompare(y.date)); }
 
 /* ---------- Backup: export / import ---------- */
 function exportData(){
@@ -495,9 +572,149 @@ function paceStr(km, min){
 }
 function fmtDur(min){
   if(!min) return '—';
-  const h=Math.floor(min/60), m=Math.round(min%60);
-  return h>0 ? `${h}h ${m}m` : `${m}m`;
+  const totalSec=Math.round(min*60);
+  const h=Math.floor(totalSec/3600), m=Math.floor((totalSec%3600)/60), s=totalSec%60;
+  return h>0 ? `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}` : `${m}:${String(s).padStart(2,'0')}`;
 }
+
+/* ============================================================
+   PACE CALCULATOR — Jack Daniels' VDOT model
+   Given one recent race or hard time-trial result, estimate an
+   aerobic-fitness score (VDOT) and derive accurate training paces
+   for each intensity zone, plus equivalent race-time predictions.
+   ============================================================ */
+const RACE_DISTS=[
+  {k:'1500',  label:'1500 m',  m:1500},
+  {k:'mile',  label:'1 Mile',  m:1609.34},
+  {k:'3k',    label:'3 K',     m:3000},
+  {k:'5k',    label:'5 K',     m:5000},
+  {k:'8k',    label:'8 K',     m:8000},
+  {k:'10k',   label:'10 K',    m:10000},
+  {k:'15k',   label:'15 K',    m:15000},
+  {k:'half',  label:'Half Mar',m:21097.5},
+  {k:'mar',   label:'Marathon',m:42195},
+];
+const PRED_DISTS=[{label:'1 Mile',m:1609.34},{label:'5K',m:5000},{label:'10K',m:10000},{label:'Half',m:21097.5},{label:'Marathon',m:42195}];
+// training zones as a fraction of VDOT (calibrated to Daniels' tables)
+const ZONES=[
+  {k:'easy', name:'Easy / Long', frac:0.715, color:'var(--easy)',     purpose:'Aerobic base, recovery, long runs. Conversational.'},
+  {k:'mar',  name:'Marathon',    frac:0.840, color:'var(--long)',     purpose:'Goal marathon effort. Steady, controlled.'},
+  {k:'thr',  name:'Threshold',   frac:0.880, color:'var(--tempo)',    purpose:'Tempo / cruise intervals. "Comfortably hard." ~1hr race effort.'},
+  {k:'int',  name:'Interval',    frac:0.975, color:'var(--interval)', purpose:'VO₂max. 3–5 min reps, equal-ish recovery. Hard.'},
+  {k:'rep',  name:'Repetition',  frac:1.050, color:'var(--fartlek)',  purpose:'Speed & economy. 200–400 m fast, full recovery.'},
+];
+function vo2FromVel(v){ return -4.60 + 0.182258*v + 0.000104*v*v; }            // v = m/min
+function pctMaxFromTime(tMin){ return 0.8 + 0.1894393*Math.exp(-0.012778*tMin) + 0.2989558*Math.exp(-0.1932605*tMin); }
+function vdotFrom(distM,timeSec){ if(distM<=0||timeSec<=0) return 0; const t=timeSec/60; const v=distM/t; return vo2FromVel(v)/pctMaxFromTime(t); }
+function velFromVo2(vo2){ const a=0.000104,b=0.182258,c=-4.60-vo2; const disc=b*b-4*a*c; if(disc<0) return 0; return (-b+Math.sqrt(disc))/(2*a); } // m/min
+function zonePaceSecPerKm(vdot,frac){ const v=velFromVo2(frac*vdot); return v>0 ? (1000/v)*60 : 0; }
+// zone pace, with marathon special-cased to the marathon race prediction (keeps "M pace" == predicted marathon pace)
+function zonePace(vdot,z){ if(z.k==='mar'){ return predictTime(42195,vdot)/42.195; } return zonePaceSecPerKm(vdot,z.frac); }
+// predict race time (sec) for a distance at a given VDOT — numeric solve, self-consistent with the model above
+function predictTime(distM,vdot){ let lo=1,hi=36000; for(let i=0;i<60;i++){ const mid=(lo+hi)/2; (vdotFrom(distM,mid)>vdot)?(lo=mid):(hi=mid); } return (lo+hi)/2; }
+// format seconds -> m:ss (for pace) always per current display unit
+function paceSecToStr(secPerKm){ if(!secPerKm||secPerKm<=0) return '—'; const per = state.unit==='mi' ? secPerKm*KM_PER_MI : secPerKm; const m=Math.floor(per/60),s=Math.round(per%60); return `${m}:${String(s).padStart(2,'0')}`; }
+// format seconds -> h:mm:ss or m:ss for race times
+function secToClock(sec){ sec=Math.round(sec); const h=Math.floor(sec/3600),m=Math.floor((sec%3600)/60),s=sec%60; return h>0?`${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`:`${m}:${String(s).padStart(2,'0')}`; }
+// split time for a rep of a given distance in metres, at a sec/km pace
+function splitFor(secPerKm,metres){ const sec=secPerKm*(metres/1000); return secToClock(sec); }
+
+/* ---------- Pace Calculator modal + inline workout helper ---------- */
+let pcState=null;     // {distKey, timeSec, athleteId, fromWorkout}
+function benchToPc(a){ const b=a&&a.benchmark; return b?{distKey:b.distKey,timeSec:b.timeSec}:{distKey:'5k',timeSec:1500}; }
+function openPaceCalc(athleteId, fromWorkout){
+  const a = athleteId ? state.athletes.find(x=>x.id===athleteId) : currentAthlete();
+  if(!a){ toast('Add an athlete first'); setView('athletes'); return; }
+  const base=benchToPc(a);
+  pcState={distKey:base.distKey, timeSec:base.timeSec, athleteId:a.id, fromWorkout:!!fromWorkout};
+  renderPaceCalc();
+}
+function pcTimeParts(sec){ return {h:Math.floor(sec/3600), m:Math.floor((sec%3600)/60), s:Math.round(sec%60)}; }
+function renderPaceCalc(){
+  const a=state.athletes.find(x=>x.id===pcState.athleteId);
+  const distOpts=RACE_DISTS.map(d=>`<option value="${d.k}" ${d.k===pcState.distKey?'selected':''}>${d.label}</option>`).join('');
+  const tp=pcTimeParts(pcState.timeSec);
+  openModal(`
+    <div class="modal-head"><h2>🧮 Pace Calculator — ${esc(a.name.split(' ')[0])}</h2><button class="close" onclick="closeModal()">×</button></div>
+    <div class="modal-body">
+      <div class="bld-section">
+        <span class="bld-legend">Enter a recent race or goal result</span>
+        <div class="pc-input">
+          <div class="field" style="margin:0"><label>Distance</label><select id="pc-dist" onchange="pcSet()">${distOpts}</select></div>
+          <div class="field" style="margin:0"><label>Hours</label><input type="number" min="0" max="9" id="pc-h" value="${tp.h}" oninput="pcSet()"></div>
+          <div class="field" style="margin:0"><label>Minutes</label><input type="number" min="0" max="59" id="pc-m" value="${tp.m}" oninput="pcSet()"></div>
+          <div class="field" style="margin:0"><label>Seconds</label><input type="number" min="0" max="59" id="pc-s" value="${tp.s}" oninput="pcSet()"></div>
+        </div>
+      </div>
+      <div id="pc-out"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" style="margin-right:auto" onclick="savePaceBenchmark()">💾 Save as ${esc(a.name.split(' ')[0])}'s benchmark</button>
+      ${pcState.fromWorkout?`<button class="btn btn-ghost" onclick="backToWorkout()">← Back to workout</button>`:''}
+      <button class="btn btn-primary" onclick="closeModal()">Done</button>
+    </div>`, true);
+  renderPaceOut();
+}
+function pcSet(){
+  const dk=$('#pc-dist').value, h=parseInt($('#pc-h').value)||0, m=parseInt($('#pc-m').value)||0, s=parseInt($('#pc-s').value)||0;
+  pcState.distKey=dk; pcState.timeSec=h*3600+m*60+s; renderPaceOut();
+}
+function renderPaceOut(){
+  const el=$('#pc-out'); if(!el) return;
+  const dist=RACE_DISTS.find(x=>x.k===pcState.distKey); const vdot=vdotFrom(dist.m,pcState.timeSec);
+  if(!vdot||pcState.timeSec<=0){ el.innerHTML=`<div class="help" style="margin-top:14px">Enter a valid time to see paces.</div>`; return; }
+  const racePace=paceSecToStr(pcState.timeSec/(dist.m/1000));
+  const rows=ZONES.map(z=>{
+    const sp=zonePace(vdot,z);
+    const per=paceSecToStr(sp);
+    const s400=splitFor(sp,400), s1k=splitFor(sp,1000), s800=splitFor(sp,800);
+    const split = (z.k==='rep')?`400m ${s400} · 200m ${splitFor(sp,200)}` : (z.k==='int')?`400m ${s400} · 800m ${s800}`:(z.k==='thr')?`1km ${s1k} · mile ${splitFor(sp,1609.34)}`:`1km ${s1k}`;
+    const useBtn=pcState.fromWorkout?`<button class="pace-use" onclick="usePace('${z.k}','${per}')">Use</button>`:'';
+    return `<tr><td><div class="zone"><span class="zdot" style="background:${z.color}"></span>${z.name}</div><div class="zp">${z.purpose}</div></td><td class="pace-val">${per}<span class="zp"> /${unitLabel()}</span></td><td class="split">${split}</td><td style="text-align:right">${useBtn}</td></tr>`;
+  }).join('');
+  const preds=PRED_DISTS.map(p=>`<div class="pred-card"><div class="pd">${p.label}</div><div class="pt">${secToClock(predictTime(p.m,vdot))}</div></div>`).join('');
+  el.innerHTML=`
+    <div class="pc-vdot"><div><div class="vnum">${vdot.toFixed(0)}</div><div class="vlab">VDOT</div></div><div class="vdesc">Fitness score from your <b>${dist.label}</b> in <b>${secToClock(pcState.timeSec)}</b> (${racePace}/${unitLabel()} race pace).<br>All training paces &amp; race predictions below are derived from this.</div></div>
+    <div class="bld-section"><span class="bld-legend">Training paces (per ${unitLabel()})</span>
+      <table class="pace-table"><thead><tr><th>Zone</th><th>Pace</th><th>Splits</th><th></th></tr></thead><tbody>${rows}</tbody></table>
+      <div class="pace-legend">
+        <div class="pl"><b>Tempo = Threshold.</b> Prescribe tempo runs &amp; cruise intervals at this pace.</div>
+        <div class="pl"><b>Intervals = VO₂max.</b> 3–5 min reps (e.g. 800–1200 m) at Interval pace.</div>
+        <div class="pl"><b>Fartlek:</b> surge at Interval/Rep pace, float at Easy between.</div>
+        <div class="pl"><b>Reps:</b> short &amp; fast (200–400 m) for speed &amp; economy, full recovery.</div>
+      </div>
+    </div>
+    <div class="bld-section" style="margin-bottom:4px"><span class="bld-legend">Equivalent race predictions</span><div class="pred-grid">${preds}</div>
+      <div class="help">Predictions assume equal fitness &amp; specific training for each distance (Daniels model).</div></div>`;
+}
+function savePaceBenchmark(){
+  const a=state.athletes.find(x=>x.id===pcState.athleteId); if(!a) return;
+  a.benchmark={distKey:pcState.distKey,timeSec:pcState.timeSec}; save();
+  toast('Benchmark saved for '+a.name.split(' ')[0]+' ✓');
+  if($('#paceHelperWrap') && a.id===currentAthlete()?.id) $('#paceHelperWrap').innerHTML=paceHelperHTML(a);
+}
+// return to the run/workout modal this pace calculator was opened from, preserving in-progress sets
+function backToWorkout(){
+  if(runModalCtx) openRunModal(runModalCtx.dateISO, runModalCtx.editId, runModalCtx.forceMode, true);
+  else closeModal();
+}
+// insert a pace into the workout builder's set targets — used both by the compact
+// inline helper (same modal, live DOM) and the full calculator (may have replaced
+// the run modal's DOM, so this always updates draftSets directly first)
+function usePace(zoneKey, paceStr){
+  const val=paceStr+'/'+unitLabel();
+  draftSets.forEach(s=>{ if(!s.target || !s.target.trim() || s.autofill==='1'){ s.target=val; s.autofill='1'; } });
+  if(document.querySelector('#setRows')) renderSetRows();
+  toast(`${ZONES.find(z=>z.k===zoneKey).name} pace ${val} applied to sets ✓`);
+}
+// compact pace helper shown inline inside the prescribe/log workout builder & plan builder
+function paceHelperHTML(a){
+  if(!a.benchmark) return `<div class="pace-helper"><div class="ph-h"><span>🎯 Target paces</span><button class="pc-open-btn" onclick="openPaceCalc('${a.id}',true)">🧮 Set benchmark</button></div><div class="help" style="margin:0">No fitness benchmark yet — open the calculator to generate ${esc(a.name.split(' ')[0])}'s training paces.</div></div>`;
+  const dist=RACE_DISTS.find(x=>x.k===a.benchmark.distKey); const vdot=vdotFrom(dist.m,a.benchmark.timeSec);
+  const chips=ZONES.filter(z=>['thr','int','rep','mar'].includes(z.k)).map(z=>{ const per=paceSecToStr(zonePace(vdot,z)); return `<button class="pace-chip" onclick="usePace('${z.k}','${per}')" title="Insert ${z.name} pace into set targets"><span class="cdot" style="background:${z.color}"></span>${z.name} <span class="cv">${per}/${unitLabel()}</span></button>`; }).join('');
+  return `<div class="pace-helper"><div class="ph-h"><span>🎯 Target paces · VDOT ${vdot.toFixed(0)}</span><button class="pc-open-btn" onclick="openPaceCalc('${a.id}',true)">🧮 Full calculator</button></div><div class="pace-chips">${chips}</div><div class="help" style="margin-top:9px">Click a pace to drop it into the set targets above.</div></div>`;
+}
+
 function todayISO(){ const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
 function parseISO(s){ const [y,m,d]=s.split('-').map(Number); return new Date(y,m-1,d); }
 function fmtDate(iso){ return parseISO(iso).toLocaleDateString('en-CA',{weekday:'short',month:'short',day:'numeric'}); }
@@ -531,12 +748,22 @@ function mondayOffset(daysBack){
 function dayFrom(iso,n){ return addDays(iso,n); }
 
 function seed(){
-  const mk = (name, level, race, raceDate, target) => ({
-    id: uid(), name, level, goalRace: race, raceDate, weeklyTarget: target, runs: []
-  });
-  const a1 = mk('Jordan Reyes','beginner','First 5K', addDays(todayISO(),46), 20);
-  const a2 = mk('Priya Anand','intermediate','Half Marathon', addDays(todayISO(),72), 55);
-  const a3 = mk('Marcus Webb','elite','Marathon PB', addDays(todayISO(),110), 110);
+  const mk = (name, level, races, target) => {
+    const a = { id: uid(), name, level, weeklyTarget: target, runs: [], races };
+    syncPrimaryRace(a);
+    return a;
+  };
+  const a1 = mk('Jordan Reyes','beginner',[
+    {id:uid(), name:'First 5K', date:addDays(todayISO(),46)}
+  ], 20);
+  const a2 = mk('Priya Anand','intermediate',[
+    {id:uid(), name:'Tune-up 10K', date:addDays(todayISO(),30)},
+    {id:uid(), name:'Half Marathon', date:addDays(todayISO(),72)}
+  ], 55);
+  const a3 = mk('Marcus Webb','elite',[
+    {id:uid(), name:'Tune-up Half', date:addDays(todayISO(),55)},
+    {id:uid(), name:'Marathon PB', date:addDays(todayISO(),110)}
+  ], 110);
   seedRuns(a1,'beginner'); seedRuns(a2,'intermediate'); seedRuns(a3,'elite');
   seedPlan(a1,'beginner'); seedPlan(a2,'intermediate'); seedPlan(a3,'elite');
   state.athletes=[a1,a2,a3];
@@ -714,9 +941,10 @@ function renderDashboard(a){
   let raceHtml='';
   if(a.raceDate){
     const days=Math.ceil((parseISO(a.raceDate)-new Date())/86400000);
+    const more=upcomingRaces(a).length-1;
     raceHtml=`<div class="card stat"><h3>${esc(a.goalRace)||'Goal Race'}</h3>
       <div class="num">${days>=0?days:0}<small> days</small></div>
-      <div class="sub">${parseISO(a.raceDate).toLocaleDateString('en-CA',{month:'long',day:'numeric',year:'numeric'})}</div></div>`;
+      <div class="sub">${parseISO(a.raceDate).toLocaleDateString('en-CA',{month:'long',day:'numeric',year:'numeric'})}${more>0?` · +${more} more race${more===1?'':'s'}`:''}</div></div>`;
   }
   $('#view-dashboard').innerHTML=`
     <div class="grid stat-grid">
@@ -893,6 +1121,7 @@ function renderPlan(a){
     <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:6px">
       <div style="color:var(--muted);font-size:13.5px">Prescribe upcoming sessions for <b style="color:var(--text)">${esc(a.name)}</b>. Athletes see these as targets, then log actuals against them.</div>
       ${shareMode?'':`<div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="pc-open-btn" onclick="openPaceCalc()">🧮 Pace Calculator</button>
         <button class="btn btn-ghost" onclick="openRunModal(null,null,'planned')">＋ Single Workout</button>
         <button class="btn btn-primary" onclick="openPlanBuilder()">🧱 Plan Builder</button></div>`}
     </div>
@@ -1063,8 +1292,13 @@ function renderBuilderModal(){
         <div class="pattern-editor">${patternSel}</div>
       </div>
 
+      <div class="bld-section">
+        <span class="bld-legend">4 · Training paces <span style="text-transform:none;letter-spacing:0;font-weight:600">— know what pace to prescribe for intervals, tempo & fartlek</span></span>
+        <div id="builderPaces">${paceHelperHTML(a)}</div>
+      </div>
+
       <div class="bld-section" style="margin-bottom:6px">
-        <span class="bld-legend">4 · Block preview</span>
+        <span class="bld-legend">5 · Block preview</span>
         <div id="builderPreview"></div>
         <div class="help">💡 Click any cell to cycle that day's run type · click a week label to toggle a cutback week · distances auto-distribute to hit each week's volume.</div>
       </div>
@@ -1256,26 +1490,31 @@ function renderCalendar(a){
   const from=new Date(y,m,1),to=new Date(y,m+1,0,23,59,59);
   const monthDone=runsInRange(doneRuns(a),from,to);
   const dow=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const raceByDate={}; (a.races||[]).forEach(r=>{ if(r.date) raceByDate[r.date]=r; });
   let cells=''; for(let i=0;i<startDow;i++) cells+=`<div class="cal-cell empty-cell"></div>`;
   const todayStr=todayISO();
   for(let d=1;d<=days;d++){
     const iso=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
     const dayRuns=a.runs.filter(r=>r.date===iso);
     const isToday=iso===todayStr;
-    let chips=dayRuns.slice(0,2).map(r=>{ const t=TYPES[r.type];
+    const race=raceByDate[iso];
+    let chips = race ? `<div class="cal-chip race" title="${esc(race.name)}"><span>🏁 ${esc(race.name)}</span></div>` : '';
+    chips += dayRuns.slice(0,2).map(r=>{ const t=TYPES[r.type];
       if(r.status==='planned') return `<div class="cal-chip plan" style="color:${t.color}"><span>${t.icon} ${t.label.split(' ')[0]}</span><span>${fmtDist(r.distance)}</span></div>`;
       return `<div class="cal-chip" style="background:${t.color}"><span>${t.icon} ${t.label.split(' ')[0]}</span><span>${fmtDist(r.distance)}</span></div>`; }).join('');
     if(dayRuns.length>2) chips+=`<div style="font-size:10px;color:var(--muted);margin-top:3px">+${dayRuns.length-2} more</div>`;
-    const rest = dayRuns.length===0?`<span class="rest">rest</span>`:'';
-    cells+=`<div class="cal-cell ${isToday?'today':''}" data-date="${iso}"><div class="dn">${d}</div>${chips}${rest}</div>`;
+    const rest = (dayRuns.length===0 && !race)?`<span class="rest">rest</span>`:'';
+    const cellCls = isToday?'today':(race?'race-day':'');
+    cells+=`<div class="cal-cell ${cellCls}" data-date="${iso}"><div class="dn">${d}</div>${chips}${rest}</div>`;
   }
   $('#view-calendar').innerHTML=`
     <div class="cal-head">
       <button class="cal-nav" id="calPrev">‹</button><h2>${monthName}</h2><button class="cal-nav" id="calNext">›</button>
       <button class="cal-nav" id="calToday" style="width:auto;padding:0 14px;font-size:13px;font-weight:700">Today</button>
-      <div style="margin-left:auto;color:var(--muted);font-size:13px;display:flex;gap:14px;align-items:center">
+      <div style="margin-left:auto;color:var(--muted);font-size:13px;display:flex;gap:14px;align-items:center;flex-wrap:wrap">
         <span><i class="dot" style="background:var(--accent)"></i> done</span>
         <span><i class="dot" style="border:1.5px dashed var(--muted);background:transparent"></i> planned</span>
+        <span><i class="dot" style="background:var(--race)"></i> race day</span>
         <span>${fmtDist(sumDist(monthDone))} ${unitLabel()} · ${monthDone.length} runs</span></div>
     </div>
     <div class="cal-grid">${dow.map(d=>`<div class="cal-dow">${d}</div>`).join('')}${cells}</div>`;
@@ -1303,7 +1542,8 @@ function renderAthletes(){
     const yr=yearDist(a); const {cur}=weekStats(a); const st=streak(a);
     let daysHtml='';
     if(a.raceDate){ const days=Math.ceil((parseISO(a.raceDate)-new Date())/86400000);
-      daysHtml=`<div class="goal-row">🏁 <span>${esc(a.goalRace)}</span> · <b>${days>=0?days+' days':'done'}</b></div>`; }
+      const more=upcomingRaces(a).length-1;
+      daysHtml=`<div class="goal-row">🏁 <span>${esc(a.goalRace)}</span> · <b>${days>=0?days+' days':'done'}</b>${more>0?` <span style="color:var(--muted)">+${more} more</span>`:''}</div>`; }
     return `<div class="ath-card">
       <div class="top" data-ath="${a.id}">
         <div class="av" style="background:${avatarColor(a.id)}">${esc(initials(a.name))}</div>
@@ -1316,10 +1556,11 @@ function renderAthletes(){
         <div><div class="n">${fmtDist(yr,0)}</div><div class="l">this year</div></div>
         <div><div class="n">${st.current}</div><div class="l">wk streak</div></div>
       </div>
-      <div class="ath-actions">
-        <button class="btn btn-ghost" onclick="switchAthlete('${a.id}')">Open</button>
-        <button class="btn btn-ghost" onclick="enterShare('${a.id}')">👁 Preview</button>
-        <button class="btn btn-primary" onclick="shareLink('${a.id}')">🔗 Share link</button>
+      <div class="ath-actions" style="flex-wrap:wrap">
+        <button class="btn btn-ghost" style="flex:1 1 40%" onclick="switchAthlete('${a.id}')">Open</button>
+        <button class="btn btn-ghost" style="flex:1 1 40%" onclick="openPaceCalc('${a.id}')">🧮 Paces</button>
+        <button class="btn btn-ghost" style="flex:1 1 40%" onclick="enterShare('${a.id}')">👁 Preview</button>
+        <button class="btn btn-primary" style="flex:1 1 40%" onclick="shareLink('${a.id}')">🔗 Share link</button>
       </div></div>`;
   }).join('');
   $('#view-athletes').innerHTML=`
@@ -1389,7 +1630,8 @@ function renderShare(a){
   const nextPlan=[...plannedRuns(a)].filter(r=>r.date>=todayISO()).sort((x,y)=>x.date.localeCompare(y.date)).slice(0,3);
   let raceHtml='';
   if(a.raceDate){ const days=Math.ceil((parseISO(a.raceDate)-new Date())/86400000);
-    raceHtml=`<div class="card stat"><h3>${esc(a.goalRace)}</h3><div class="num">${days>=0?days:0}<small> days</small></div><div class="sub">${parseISO(a.raceDate).toLocaleDateString('en-CA',{month:'long',day:'numeric'})}</div></div>`; }
+    const more=upcomingRaces(a).length-1;
+    raceHtml=`<div class="card stat"><h3>${esc(a.goalRace)}</h3><div class="num">${days>=0?days:0}<small> days</small></div><div class="sub">${parseISO(a.raceDate).toLocaleDateString('en-CA',{month:'long',day:'numeric'})}${more>0?` · +${more} more`:''}</div></div>`; }
   $('#view-share').innerHTML=`
     <div class="share-banner">
       <span style="font-size:24px">🔗</span>
@@ -1423,18 +1665,28 @@ function openModal(html,wide){ const m=$('#modal'); m.innerHTML=html; m.classLis
 function closeModal(){ $('#modalBg').classList.remove('open'); }
 $('#modalBg').addEventListener('click',e=>{ if(e.target.id==='modalBg') closeModal(); });
 
-let draftSets=[]; let draftMode='done';
-function openRunModal(dateISO, editId=null, forceMode=null){
+let draftSets=[]; let draftMode='done'; let draftType='easy';
+let runModalCtx=null;   // {dateISO, editId, forceMode} — lets "back to workout" from the pace calculator restore this session
+function openRunModal(dateISO, editId=null, forceMode=null, preserve=false){
   const a=currentAthlete();
   if(!a){ toast('Add an athlete first'); setView('athletes'); return; }
+  if(preserve && runModalCtx){ dateISO=runModalCtx.dateISO; editId=runModalCtx.editId; forceMode=runModalCtx.forceMode; }
+  else { runModalCtx={dateISO,editId,forceMode}; }
   const r = editId ? a.runs.find(x=>x.id===editId) : null;
-  draftMode = forceMode || (r?r.status:'done');
+  if(!preserve){ draftMode = forceMode || (r?r.status:'done'); }
   const date = r? r.date : (dateISO||todayISO());
-  const type = r? r.type : 'easy';
-  draftSets = r&&r.workout ? JSON.parse(JSON.stringify(r.workout.sets)) : [{reps:6,effort:'400m',target:'',rest:'90s'}];
+  const type = preserve ? draftType : (r? r.type : 'easy');
+  if(!preserve){ draftType = type; }
+  if(!preserve){ draftSets = r&&r.workout ? JSON.parse(JSON.stringify(r.workout.sets)) : [{reps:6,effort:'400m',target:'',rest:'90s'}]; }
   const wu = r&&r.workout ? r.workout.warmup : {dist:2,dur:12};
   const cd = r&&r.workout ? r.workout.cooldown : {dist:1.5,dur:9};
   const isPlan = draftMode==='planned';
+  // split stored decimal minutes into mm + ss for the duration inputs
+  let durMin='', durSec='';
+  if(r && !TYPES[type].isRest && r.duration){
+    const totalSec=Math.round(r.duration*60);
+    durMin=Math.floor(totalSec/60); durSec=totalSec%60;
+  }
   openModal(`
     <div class="modal-head"><h2>${r?'Edit':(isPlan?'Prescribe':'Log')} ${isPlan?'Workout':'Run'} — ${esc(a.name.split(' ')[0])}</h2><button class="close" onclick="closeModal()">×</button></div>
     <div class="modal-body">
@@ -1449,7 +1701,12 @@ function openRunModal(dateISO, editId=null, forceMode=null){
       <div class="field-row-3" id="metricsRow" style="display:${TYPES[type].isRest?'none':'grid'}">
         <div class="field"><label>Date</label><input type="date" id="f-date" value="${date}"></div>
         <div class="field"><label>${isPlan?'Target':'Total'} distance (${unitLabel()})</label><input type="number" step="0.01" id="f-dist" value="${r&&!TYPES[type].isRest?fmtDist(r.distance,2):''}" placeholder="0.00"></div>
-        <div class="field"><label>${isPlan?'Est.':'Total'} time (min)</label><input type="number" step="1" id="f-dur" value="${r&&!TYPES[type].isRest?r.duration:''}" placeholder="0"></div>
+        <div class="field"><label>${isPlan?'Est.':'Total'} time</label>
+          <div style="display:flex;align-items:center;gap:6px">
+            <input type="number" step="1" min="0" id="f-dur-min" value="${durMin}" placeholder="mm" style="flex:1;min-width:0">
+            <span style="color:var(--muted);font-weight:800">:</span>
+            <input type="number" step="1" min="0" max="59" id="f-dur-sec" value="${durSec}" placeholder="ss" style="flex:1;min-width:0">
+          </div></div>
       </div>
       <div id="restDateRow" style="display:${TYPES[type].isRest?'block':'none'}">
         <div class="field"><label>Date</label><input type="date" id="f-date-rest" value="${date}"></div>
@@ -1482,7 +1739,9 @@ function openRunModal(dateISO, editId=null, forceMode=null){
               <div><label style="font-size:11px;color:var(--muted);font-weight:700">COOL-DOWN</label><div class="field-row"><input type="number" step="0.1" id="cd-dist" value="${cd.dist}" placeholder="km"><input type="number" id="cd-dur" value="${cd.dur}" placeholder="min"></div></div>
             </div>
             <div class="help">Distance boxes are in km regardless of display unit. Leave blank if unused.</div>
-          </div></div>
+          </div>
+          <div id="paceHelperWrap">${paceHelperHTML(a)}</div>
+        </div>
       </div>
       <div id="doneFields" style="display:${isPlan?'none':'block'}">
         <div class="field" id="rpeField" style="display:${TYPES[type].isRest?'none':'block'}"><label>How did it feel? (RPE 1–10)</label>
@@ -1501,6 +1760,7 @@ function openRunModal(dateISO, editId=null, forceMode=null){
   renderSetRows();
   document.querySelectorAll('#typePicker .type-opt').forEach(o=>{ o.onclick=()=>{
     document.querySelectorAll('#typePicker .type-opt').forEach(x=>x.classList.remove('sel')); o.classList.add('sel');
+    draftType=o.dataset.type;
     const isRest=!!TYPES[o.dataset.type].isRest;
     $('#workoutSection').style.display=(!isRest&&TYPES[o.dataset.type].structured)?'block':'none';
     $('#metricsRow').style.display=isRest?'none':'grid';
@@ -1525,7 +1785,9 @@ function renderSetRows(){
     <input type="text" value="${esc(s.target||'')}" data-i="${i}" data-k="target" placeholder="90s / hard">
     <input type="text" value="${esc(s.rest||'')}" data-i="${i}" data-k="rest" placeholder="90s jog">
     <button class="x" onclick="removeSet(${i})">×</button></div>`).join('');
-  el.querySelectorAll('input').forEach(inp=>{ inp.oninput=()=>{ draftSets[+inp.dataset.i][inp.dataset.k]= inp.dataset.k==='reps'?+inp.value:inp.value; }; });
+  el.querySelectorAll('input').forEach(inp=>{
+    inp.oninput=()=>{ draftSets[+inp.dataset.i][inp.dataset.k]= inp.dataset.k==='reps'?+inp.value:inp.value; if(inp.dataset.k==='target') draftSets[+inp.dataset.i].autofill='0'; };
+  });
 }
 function addSet(){ draftSets.push({reps:4,effort:'200m',target:'',rest:'60s'}); renderSetRows(); }
 function removeSet(i){ draftSets.splice(i,1); if(!draftSets.length) draftSets.push({reps:1,effort:'',target:'',rest:''}); renderSetRows(); }
@@ -1547,7 +1809,9 @@ function saveRun(editId){
     return;
   }
   let dist=parseFloat($('#f-dist').value)||0; if(state.unit==='mi') dist*=KM_PER_MI;
-  const dur=parseInt($('#f-dur').value)||0;
+  const durMinInput=parseInt($('#f-dur-min').value)||0;
+  const durSecInput=Math.max(0,Math.min(59,parseInt($('#f-dur-sec').value)||0));
+  const dur=durMinInput+durSecInput/60;
   let workout=null;
   if(TYPES[type].structured){
     workout={ warmup:{dist:parseFloat($('#wu-dist').value)||0,dur:parseInt($('#wu-dur').value)||0},
@@ -1621,8 +1885,10 @@ function completePlanned(id){
 /* ---------- Athlete modal ---------- */
 function openAthleteModal(){ athleteForm(null); }
 function editAthlete(id){ athleteForm(id); }
+let draftRaces=[];
 function athleteForm(id){
   const a = id ? state.athletes.find(x=>x.id===id) : null;
+  draftRaces = a && a.races ? JSON.parse(JSON.stringify(a.races)) : [];
   openModal(`
     <div class="modal-head"><h2>${a?'Edit':'Add'} Athlete</h2><button class="close" onclick="closeModal()">×</button></div>
     <div class="modal-body">
@@ -1633,24 +1899,44 @@ function athleteForm(id){
           <option value="intermediate" ${a&&a.level==='intermediate'?'selected':''}>Intermediate — racing regularly</option>
           <option value="elite" ${a&&a.level==='elite'?'selected':''}>Elite — high volume / competitive</option>
         </select><div class="help">Level tailors suggested weekly targets and coach-note benchmarks.</div></div>
-      <div class="field-row">
-        <div class="field"><label>Goal race</label><input id="a-race" value="${a?esc(a.goalRace||''):''}" placeholder="e.g. Half Marathon"></div>
-        <div class="field"><label>Race date</label><input type="date" id="a-date" value="${a?a.raceDate||'':''}"></div></div>
+      <div class="field"><label>Races</label>
+        <div id="racesList"></div>
+        <button type="button" class="add-set" onclick="addRaceRow()">＋ Add race</button>
+        <div class="help">The soonest upcoming race drives the countdown card and shows as a 🏁 marker on the calendar.</div></div>
       <div class="field"><label>Weekly target (${unitLabel()})</label><input type="number" id="a-target" value="${a?fmtDist(a.weeklyTarget||0,0):defaultTarget('beginner')}" placeholder="20"></div>
+      ${a?`<div class="help">🧮 Tip: use the <b>Paces</b> button on ${esc(a.name.split(' ')[0])}'s athlete card to set a fitness benchmark for accurate workout paces.</div>`:''}
     </div>
     <div class="modal-foot">
       ${a?`<button class="btn btn-ghost" style="color:var(--interval);margin-right:auto" onclick="removeAthlete('${a.id}')">Delete athlete</button>`:''}
       <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
       <button class="btn btn-primary" onclick="saveAthlete('${id||''}')">${a?'Save':'Add athlete'}</button></div>`);
   $('#a-level').onchange=e=>{ if(!a) $('#a-target').value=defaultTarget(e.target.value); };
+  renderRaceRows();
 }
+function renderRaceRows(){
+  const el=$('#racesList'); if(!el) return;
+  el.innerHTML = draftRaces.length ? draftRaces.map((r,i)=>`
+    <div class="race-row">
+      <input type="text" value="${esc(r.name)}" data-i="${i}" data-k="name" placeholder="e.g. Boston Marathon">
+      <input type="date" value="${r.date||''}" data-i="${i}" data-k="date">
+      <button class="x" onclick="removeRaceRow(${i})" title="Remove">×</button>
+    </div>`).join('') : `<div class="help" style="margin:0 0 8px">No races yet — add one below.</div>`;
+  el.querySelectorAll('input').forEach(inp=>{
+    inp.oninput=()=>{ draftRaces[+inp.dataset.i][inp.dataset.k]=inp.value; };
+  });
+}
+function addRaceRow(){ draftRaces.push({id:uid(),name:'',date:''}); renderRaceRows(); }
+function removeRaceRow(i){ draftRaces.splice(i,1); renderRaceRows(); }
 function defaultTarget(level){ const km=level==='beginner'?20:level==='intermediate'?55:100; return Math.round(toUnit(km)); }
 function saveAthlete(id){
   const name=$('#a-name').value.trim(); if(!name){ toast('Enter a name'); return; }
   let target=parseFloat($('#a-target').value)||0; if(state.unit==='mi') target*=KM_PER_MI;
-  const data={name,level:$('#a-level').value,goalRace:$('#a-race').value.trim(),raceDate:$('#a-date').value,weeklyTarget:+target.toFixed(1)};
-  if(id){ Object.assign(state.athletes.find(x=>x.id===id),data); }
-  else { const na={id:uid(),runs:[],...data}; state.athletes.push(na); state.activeAthlete=na.id; }
+  const races=draftRaces.filter(r=>r.name.trim()&&r.date).map(r=>({id:r.id||uid(),name:r.name.trim(),date:r.date}));
+  const data={name,level:$('#a-level').value,races,weeklyTarget:+target.toFixed(1)};
+  let athlete;
+  if(id){ athlete=state.athletes.find(x=>x.id===id); Object.assign(athlete,data); }
+  else { athlete={id:uid(),runs:[],benchmark:null,...data}; state.athletes.push(athlete); state.activeAthlete=athlete.id; }
+  syncPrimaryRace(athlete);
   save(); closeModal(); render(); toast(id?'Athlete updated ✓':'Athlete added ✓');
 }
 function removeAthlete(id){
@@ -1685,6 +1971,7 @@ function boot(){
   $('#hamburgerBtn').onclick=openSidebar;
   $('#sidebarBackdrop').onclick=closeSidebar;
   $('#exportBtn').onclick=exportData;
+  $('#paceBtn').onclick=()=>openPaceCalc();
   $('#importBtn').onclick=()=>$('#importFile').click();
   $('#importFile').onchange=e=>{ importData(e.target.files[0]); e.target.value=''; };
   document.querySelectorAll('#unitToggle button').forEach(b=>b.onclick=()=>{
