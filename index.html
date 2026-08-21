@@ -202,6 +202,29 @@ a{color:inherit}
 .pace-chip .cv{font-variant-numeric:tabular-nums;color:var(--muted)}
 .pace-chip small{color:var(--muted);font-weight:600}
 @media(max-width:1000px){.pc-input{grid-template-columns:1fr 1fr}.pred-grid{grid-template-columns:repeat(3,1fr)}.pace-legend{grid-template-columns:1fr}}
+.pc-hist{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.pc-hist-row{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px;align-items:center;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;padding:8px 10px;font-size:12.5px}
+.pc-hist-row .phd{color:var(--muted)}
+.pc-hist-row .phv{font-weight:800;font-variant-numeric:tabular-nums}
+.trend-tabs{display:flex;gap:6px;margin-bottom:14px;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:4px;max-width:420px}
+.trend-tabs button{flex:1;padding:8px;border-radius:7px;font-size:12px;font-weight:700;color:var(--muted)}
+.trend-tabs button.active{background:var(--accent);color:#fff}
+.trend-badge{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;padding:4px 10px;border-radius:20px;background:var(--panel-2);border:1px solid var(--line);margin-left:10px}
+.trend-badge.up{color:var(--easy)}
+.trend-badge.down{color:var(--interval)}
+/* actual interval/tempo/fartlek logging */
+.aw-setup{display:grid;grid-template-columns:1fr .6fr .85fr 1.3fr;gap:10px;align-items:end}
+.aw-reps{display:flex;flex-direction:column;gap:7px;margin-top:14px}
+.aw-row{display:grid;grid-template-columns:32px 1fr 1fr;gap:10px;align-items:center;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+.aw-row .awn{font-weight:800;color:var(--muted);font-size:12.5px;text-align:center}
+.aw-row .awt{display:flex;align-items:center;gap:5px}
+.aw-row .awt input{width:100%;min-width:0;text-align:center}
+.aw-row .awp{font-weight:800;font-variant-numeric:tabular-nums;font-size:13px;white-space:nowrap;text-align:right}
+.aw-row .awp small{color:var(--muted);font-weight:600}
+.aw-summary{display:flex;gap:18px;flex-wrap:wrap;margin-top:14px;padding:12px 14px;background:var(--panel-2);border:1px solid var(--line);border-radius:11px}
+.aw-summary div{font-size:12px;color:var(--muted)}
+.aw-summary b{display:block;font-size:15px;color:var(--text);font-variant-numeric:tabular-nums;margin-top:2px}
+@media(max-width:760px){.aw-setup{grid-template-columns:1fr 1fr}.aw-setup > div:last-child{grid-column:1/-1}}
 .cal-cell.race-day{border-color:var(--race);border-width:2px}
 .cal-cell .rest{position:absolute;bottom:7px;right:9px;font-size:10px;color:var(--muted)}
 
@@ -326,10 +349,10 @@ body.light .modal-bg{background:rgba(30,40,60,.45)}
 .builder-setup .field label{min-height:30px;display:flex;align-items:flex-end;line-height:1.25}
 .builder-setup .field input,.builder-setup .field select{height:42px}
 /* weekly pattern day cards */
-.pattern-editor{display:grid;grid-template-columns:repeat(7,1fr);gap:10px}
+.pattern-editor{display:grid;grid-template-columns:repeat(7,minmax(92px,1fr));gap:8px;overflow-x:auto;padding-bottom:4px}
 .pat-day{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:10px 8px;display:flex;flex-direction:column;gap:8px}
 .pat-day .dow{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;text-align:center}
-.pat-day select{width:100%;background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:9px 6px;color:var(--text);font-size:12px;font-weight:700;outline:none;text-align:center;text-align-last:center}
+.pat-day select{width:100%;background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:9px 4px;color:var(--text);font-size:11.5px;font-weight:700;outline:none;text-align:center;text-align-last:center}
 .pat-day select:focus{border-color:var(--accent)}
 /* the block grid — square, aligned, no cramped scroll */
 .bgrid{border:1px solid var(--line);border-radius:14px;overflow:hidden}
@@ -366,7 +389,7 @@ body.light .modal-bg{background:rgba(30,40,60,.45)}
 @media(max-width:1000px){.stat-grid{grid-template-columns:repeat(2,1fr)}.detail-metrics{grid-template-columns:repeat(2,1fr)}
   .builder-setup{grid-template-columns:repeat(2,1fr)}.preset-row{grid-template-columns:repeat(2,1fr)}
   .builder-summary{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:760px){.builder-setup{grid-template-columns:1fr 1fr}.pattern-editor{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:760px){.builder-setup{grid-template-columns:1fr 1fr}.pattern-editor{grid-template-columns:repeat(4,minmax(84px,1fr))}}
 .hamburger{display:none;width:38px;height:38px;border-radius:11px;background:var(--panel);border:1px solid var(--line);align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
 .hamburger:hover{background:var(--panel-2)}
 .sidebar-backdrop{display:none;position:fixed;inset:0;background:rgba(5,6,9,.55);z-index:29}
@@ -414,7 +437,8 @@ body.light .modal-bg{background:rgba(30,40,60,.45)}
       <input type="file" id="importFile" accept="application/json" style="display:none">
     </div>
     <div class="foot">
-      Elevate your RUN · v2 prototype<br>Local data — nothing leaves your device.<br>Export regularly to avoid losing your log.
+      Elevate your RUN · v2 prototype<br>Local data — nothing leaves your device.<br>Export regularly to avoid losing your log.<br>
+      <a href="#" id="restoreBackupLink" style="color:var(--accent);font-weight:700">Having issues? Restore last backup</a>
     </div>
   </aside>
 
@@ -469,6 +493,7 @@ const TYPES = {
   race:     {label:'Race Day',   icon:'🏅', color:'var(--race)',     structured:false},
   rest:     {label:'Rest Day',   icon:'😴', color:'var(--recovery)', structured:false, isRest:true},
 };
+const SHORT_LABEL = {easy:'Easy',tempo:'Tempo',interval:'Intervals',fartlek:'Fartlek',long:'Long',race:'Race',rest:'Rest'};
 const AVATAR_COLORS = ['#ff6b35','#38bdf8','#34d399','#a78bfa','#fbbf24','#f43f5e','#22d3ee','#f97316'];
 
 /* ---------- State ---------- */
@@ -484,11 +509,41 @@ let shareMode = false;   // athlete read-only view
 let currentView = 'dashboard';
 
 /* ---------- Persistence ---------- */
-function save(){ if(linkMode) return; localStorage.setItem('elevate_v3', JSON.stringify(state)); }
+// keep a one-generation-back safety copy on every successful save, so a bad write
+// or a bug in migrate() can never permanently destroy the previous good state
+function save(){
+  if(linkMode) return;
+  try{
+    const prev=localStorage.getItem('elevate_v3');
+    if(prev) localStorage.setItem('elevate_v3_backup', prev);
+    localStorage.setItem('elevate_v3', JSON.stringify(state));
+  }catch(e){
+    console.error('Elevate: save failed', e);
+    alert('⚠️ Your last change could not be saved (storage may be full). Please use Export now to back up your data, then free up space or clear old browser data.');
+  }
+}
 function load(){
   const raw = localStorage.getItem('elevate_v3');
-  if(raw){ try{ state = JSON.parse(raw); migrate(); save(); return true; }catch(e){} }
-  return false;
+  if(!raw) return false;
+  try{
+    state = JSON.parse(raw);
+    migrate();
+    save();
+    return true;
+  }catch(e){
+    // NEVER fall through to seed()+save() here — that would silently overwrite
+    // real data with the demo set. Try the rolling backup instead; if that also
+    // fails, surface the problem rather than destroying anything.
+    console.error('Elevate: failed to load saved data', e);
+    const backup = localStorage.getItem('elevate_v3_backup');
+    if(backup){
+      try{ state=JSON.parse(backup); migrate(); save(); alert('⚠️ Your most recent data failed to load, so the last automatic backup was restored instead. Please check your recent runs and use Export to back up.'); return true; }
+      catch(e2){ console.error('Elevate: backup also failed to load', e2); }
+    }
+    alert('⚠️ Your saved data could not be loaded and has NOT been deleted — it is still in this browser\'s storage. Please contact support before doing anything else in this app, so it can be recovered.');
+    state={unit:'km', theme:'dark', activeAthlete:null, athletes:[], calMonth:new Date().getMonth(), calYear:new Date().getFullYear()};
+    return true;   // report "loaded" so boot() does not seed()/save() over the untouched raw data in localStorage
+  }
 }
 // defensive: convert any legacy 'recovery' runs into rest days, and legacy single-race
 // athletes into the races[] array (keeping goalRace/raceDate mirrored for old UI reads)
@@ -509,6 +564,9 @@ function migrate(){
     }
     delete a.paceRef;
     if(a.benchmark===undefined) a.benchmark=null;
+    if(!Array.isArray(a.benchmarkHistory)){
+      a.benchmarkHistory = a.benchmark ? [{id:uid(), distKey:a.benchmark.distKey, timeSec:a.benchmark.timeSec, date:todayISO()}] : [];
+    }
     syncPrimaryRace(a);
   });
 }
@@ -618,15 +676,17 @@ function paceSecToStr(secPerKm){ if(!secPerKm||secPerKm<=0) return '—'; const 
 function secToClock(sec){ sec=Math.round(sec); const h=Math.floor(sec/3600),m=Math.floor((sec%3600)/60),s=sec%60; return h>0?`${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`:`${m}:${String(s).padStart(2,'0')}`; }
 // split time for a rep of a given distance in metres, at a sec/km pace
 function splitFor(secPerKm,metres){ const sec=secPerKm*(metres/1000); return secToClock(sec); }
+// convert a rep distance entered as m/km/mi into internal km
+function repDistToKm(value,unit){ if(!value) return 0; if(unit==='m') return value/1000; if(unit==='mi') return value*KM_PER_MI; return value; }
 
 /* ---------- Pace Calculator modal + inline workout helper ---------- */
-let pcState=null;     // {distKey, timeSec, athleteId, fromWorkout}
+let pcState=null;     // {distKey, timeSec, date, athleteId, fromWorkout}
 function benchToPc(a){ const b=a&&a.benchmark; return b?{distKey:b.distKey,timeSec:b.timeSec}:{distKey:'5k',timeSec:1500}; }
 function openPaceCalc(athleteId, fromWorkout){
   const a = athleteId ? state.athletes.find(x=>x.id===athleteId) : currentAthlete();
   if(!a){ toast('Add an athlete first'); setView('athletes'); return; }
   const base=benchToPc(a);
-  pcState={distKey:base.distKey, timeSec:base.timeSec, athleteId:a.id, fromWorkout:!!fromWorkout};
+  pcState={distKey:base.distKey, timeSec:base.timeSec, date:todayISO(), athleteId:a.id, fromWorkout:!!fromWorkout};
   renderPaceCalc();
 }
 function pcTimeParts(sec){ return {h:Math.floor(sec/3600), m:Math.floor((sec%3600)/60), s:Math.round(sec%60)}; }
@@ -634,6 +694,9 @@ function renderPaceCalc(){
   const a=state.athletes.find(x=>x.id===pcState.athleteId);
   const distOpts=RACE_DISTS.map(d=>`<option value="${d.k}" ${d.k===pcState.distKey?'selected':''}>${d.label}</option>`).join('');
   const tp=pcTimeParts(pcState.timeSec);
+  const hist=(a.benchmarkHistory||[]).slice().sort((x,y)=>y.date.localeCompare(x.date));
+  const histHTML = hist.length ? `<div class="bld-section"><span class="bld-legend">Result history <span style="text-transform:none;letter-spacing:0;font-weight:600">— powers the Fitness trend on Progression</span></span>
+    <div class="pc-hist">${hist.map(h=>{ const d=RACE_DISTS.find(x=>x.k===h.distKey); return `<div class="pc-hist-row"><span class="phd">${fmtDate(h.date)}</span><span>${d?d.label:h.distKey}</span><span class="phv">${secToClock(h.timeSec)}</span><button class="run-del" onclick="deleteBenchmark('${h.id}')" title="Delete">🗑</button></div>`; }).join('')}</div></div>` : '';
   openModal(`
     <div class="modal-head"><h2>🧮 Pace Calculator — ${esc(a.name.split(' ')[0])}</h2><button class="close" onclick="closeModal()">×</button></div>
     <div class="modal-body">
@@ -645,8 +708,10 @@ function renderPaceCalc(){
           <div class="field" style="margin:0"><label>Minutes</label><input type="number" min="0" max="59" id="pc-m" value="${tp.m}" oninput="pcSet()"></div>
           <div class="field" style="margin:0"><label>Seconds</label><input type="number" min="0" max="59" id="pc-s" value="${tp.s}" oninput="pcSet()"></div>
         </div>
+        <div class="field" style="margin-top:10px;max-width:220px"><label>Date of this result</label><input type="date" id="pc-date" value="${pcState.date}" onchange="pcSet()"></div>
       </div>
       <div id="pc-out"></div>
+      ${histHTML}
     </div>
     <div class="modal-foot">
       <button class="btn btn-ghost" style="margin-right:auto" onclick="savePaceBenchmark()">💾 Save as ${esc(a.name.split(' ')[0])}'s benchmark</button>
@@ -657,7 +722,7 @@ function renderPaceCalc(){
 }
 function pcSet(){
   const dk=$('#pc-dist').value, h=parseInt($('#pc-h').value)||0, m=parseInt($('#pc-m').value)||0, s=parseInt($('#pc-s').value)||0;
-  pcState.distKey=dk; pcState.timeSec=h*3600+m*60+s; renderPaceOut();
+  pcState.distKey=dk; pcState.timeSec=h*3600+m*60+s; pcState.date=$('#pc-date').value||todayISO(); renderPaceOut();
 }
 function renderPaceOut(){
   const el=$('#pc-out'); if(!el) return;
@@ -689,9 +754,24 @@ function renderPaceOut(){
 }
 function savePaceBenchmark(){
   const a=state.athletes.find(x=>x.id===pcState.athleteId); if(!a) return;
-  a.benchmark={distKey:pcState.distKey,timeSec:pcState.timeSec}; save();
+  if(!Array.isArray(a.benchmarkHistory)) a.benchmarkHistory=[];
+  const dateVal=pcState.date||todayISO();
+  // if a result already exists for this exact date, update it rather than duplicating
+  const existing=a.benchmarkHistory.find(h=>h.date===dateVal);
+  if(existing){ existing.distKey=pcState.distKey; existing.timeSec=pcState.timeSec; }
+  else { a.benchmarkHistory.push({id:uid(), distKey:pcState.distKey, timeSec:pcState.timeSec, date:dateVal}); }
+  a.benchmarkHistory.sort((x,y)=>x.date.localeCompare(y.date));
+  a.benchmark=a.benchmarkHistory[a.benchmarkHistory.length-1];   // "current" = most recent by date
+  save();
   toast('Benchmark saved for '+a.name.split(' ')[0]+' ✓');
   if($('#paceHelperWrap') && a.id===currentAthlete()?.id) $('#paceHelperWrap').innerHTML=paceHelperHTML(a);
+  renderPaceCalc();
+}
+function deleteBenchmark(id){
+  const a=state.athletes.find(x=>x.id===pcState.athleteId); if(!a) return;
+  a.benchmarkHistory=(a.benchmarkHistory||[]).filter(h=>h.id!==id);
+  a.benchmark=a.benchmarkHistory.length ? a.benchmarkHistory[a.benchmarkHistory.length-1] : null;
+  save(); renderPaceCalc(); toast('Result removed');
 }
 // return to the run/workout modal this pace calculator was opened from, preserving in-progress sets
 function backToWorkout(){
@@ -1253,7 +1333,7 @@ function renderBuilderModal(){
   const presetChips=Object.keys(PRESETS).map(k=>`<button class="preset-chip ${b.preset===k?'sel':''}" onclick="applyPreset('${k}')">${PRESETS[k].name}<small>${PRESETS[k].weeks} weeks</small></button>`).join('');
   const patternSel=DOW_SHORT.map((d,i)=>`<div class="pat-day"><div class="dow">${d}</div>
     <select data-day="${i}" onchange="setPattern(${i},this.value)">
-      ${Object.keys(TYPES).map(t=>`<option value="${t}" ${b.pattern[i]===t?'selected':''}>${TYPES[t].icon} ${TYPES[t].label}</option>`).join('')}
+      ${Object.keys(TYPES).map(t=>`<option value="${t}" ${b.pattern[i]===t?'selected':''}>${TYPES[t].icon} ${SHORT_LABEL[t]}</option>`).join('')}
     </select></div>`).join('');
   openModal(`
     <div class="modal-head"><h2>🧱 Plan Builder — ${esc(a.name.split(' ')[0])}</h2><button class="close" onclick="closeModal()">×</button></div>
@@ -1416,8 +1496,11 @@ function applyBlock(){
 }
 
 /* ---------- Progression ---------- */
+let progTrendTab=null; let progTrendAthleteId=null;
 function renderProgression(a){
   const st=streak(a); const done=doneRuns(a);
+  const vdotData=vdotTrendData(a), easyData=easyPaceTrendData(a);
+  if(!progTrendTab || progTrendAthleteId!==a.id){ progTrendTab = vdotData.length>=2 ? 'vdot' : (easyData.length ? 'easy' : 'vdot'); progTrendAthleteId=a.id; }
   $('#view-progression').innerHTML=`
     <div class="grid stat-grid">
       <div class="card stat"><h3>Total Distance</h3><div class="num">${fmtDist(sumDist(done),0)}<small> ${unitLabel()}</small></div><div class="sub">since ${done.length?fmtDate([...done].sort((x,y)=>x.date.localeCompare(y.date))[0].date):'—'}</div></div>
@@ -1425,29 +1508,98 @@ function renderProgression(a){
       <div class="card stat"><h3>Avg / Week</h3><div class="num">${fmtDist(avgWeekly(a))}<small> ${unitLabel()}</small></div><div class="sub">rolling average</div></div>
       <div class="card stat"><h3>Longest Streak</h3><div class="num">${st.longest}<small> wks</small></div><div class="sub">consistency record</div></div>
     </div>
-    <div class="card chart-box" style="margin-top:18px"><h3 style="margin-bottom:14px">Cumulative Distance — the journey</h3><div id="cumChart"></div></div>
+    <div class="card chart-box" style="margin-top:18px">
+      <h3 style="margin-bottom:2px">Fitness Trend <span style="font-weight:400;color:var(--muted);font-size:12px;text-transform:none;letter-spacing:0">— is ${esc(a.name.split(' ')[0])} actually getting fitter?</span></h3>
+      <div class="trend-tabs" style="margin-top:12px">
+        <button class="${progTrendTab==='vdot'?'active':''}" onclick="setProgTrendTab('vdot')">🎯 Fitness (VDOT)</button>
+        <button class="${progTrendTab==='easy'?'active':''}" onclick="setProgTrendTab('easy')">🏃 Easy pace</button>
+      </div>
+      <div id="trendChart"></div>
+    </div>
     <div class="grid" style="grid-template-columns:1.2fr 1fr;margin-top:18px">
       <div class="card"><h3 style="margin-bottom:14px">Training Distribution</h3><div id="typeBars"></div></div>
       <div class="card"><h3 style="margin-bottom:14px">Coach Notes</h3><div class="help" style="font-size:13px;line-height:1.7">${coachInsight(a)}</div></div>
     </div>`;
-  drawCumChart(a,'cumChart'); drawTypeBars(distByType(a),'typeBars');
+  drawTrendTab(a); drawTypeBars(distByType(a),'typeBars');
 }
-function cumulative(a){ const s=[...doneRuns(a)].sort((x,y)=>x.date.localeCompare(y.date)); let sum=0; return s.map(r=>{sum+=r.distance;return{date:r.date,sum};}); }
-function drawCumChart(a,id){
-  const el=$('#'+id); if(!el) return; const data=cumulative(a);
-  if(!data.length){ el.innerHTML=emptyHTML('No data','Log runs to see the climb.'); return; }
-  const W=el.clientWidth||900,H=220,pad=34, maxV=toUnit(data[data.length-1].sum)||1;
-  const t0=parseISO(data[0].date).getTime(), t1=parseISO(data[data.length-1].date).getTime(), span=Math.max(t1-t0,1);
-  const pts=data.map(d=>[pad+((parseISO(d.date).getTime()-t0)/span)*(W-pad*2), H-pad-(toUnit(d.sum)/maxV)*(H-pad*2)]);
+function setProgTrendTab(tab){ progTrendTab=tab; renderProgression(currentAthlete()); }
+function drawTrendTab(a){
+  if(progTrendTab==='easy') drawEasyPaceChart(a,'trendChart');
+  else drawVdotChart(a,'trendChart');
+}
+// Monday (ISO, local) of the week containing this date — used to bucket weekly aggregates
+function mondayOf(iso){ const d=parseISO(iso); const day=(d.getDay()+6)%7; d.setDate(d.getDate()-day); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+function vdotTrendData(a){
+  return (a.benchmarkHistory||[]).slice().sort((x,y)=>x.date.localeCompare(y.date)).map(h=>{
+    const d=RACE_DISTS.find(x=>x.k===h.distKey); if(!d) return null;
+    const v=vdotFrom(d.m,h.timeSec); return v>0 ? {date:h.date, y:v, label:`${d.label} in ${secToClock(h.timeSec)}`} : null;
+  }).filter(Boolean);
+}
+function easyPaceTrendData(a){
+  const runs=doneRuns(a).filter(r=>r.type==='easy' && r.distance>0 && r.duration>0);
+  const byWeek={};
+  runs.forEach(r=>{ const wk=mondayOf(r.date); (byWeek[wk]=byWeek[wk]||[]).push(r); });
+  return Object.keys(byWeek).sort().map(wk=>{
+    const rs=byWeek[wk]; const totKm=rs.reduce((s,r)=>s+r.distance,0), totMin=rs.reduce((s,r)=>s+r.duration,0);
+    const secPerKm=(totMin*60)/totKm;
+    return {date:wk, y:secPerKm, label:`${rs.length} run${rs.length===1?'':'s'}, ${fmtDist(totKm)} ${unitLabel()}`};
+  });
+}
+// generic small-multiple trend line chart. higherIsBetter flips the trend-badge color logic.
+function drawTrendChart(id, points, opts){
+  const el=$('#'+id); if(!el) return;
+  if(!points.length){ el.innerHTML=emptyHTML(opts.emptyTitle||'No data yet', opts.emptyBody||''); return; }
+  if(points.length===1){
+    el.innerHTML=`<div style="padding:28px 6px"><div style="font-size:28px;font-weight:800">${opts.valueFmt(points[0].y)}</div><div class="help" style="margin-top:6px">${esc(points[0].label||'')} on ${fmtDate(points[0].date)}. Add more results over time to see a trend line.</div></div>`;
+    return;
+  }
+  const W=el.clientWidth||900,H=220,pad=38;
+  const ys=points.map(p=>p.y); let minV=Math.min(...ys), maxV=Math.max(...ys);
+  if(minV===maxV){ minV-=1; maxV+=1; } const padV=(maxV-minV)*0.15; minV-=padV; maxV+=padV;
+  const t0=parseISO(points[0].date).getTime(), t1=parseISO(points[points.length-1].date).getTime(), span=Math.max(t1-t0,1);
+  const yPix=y=>H-pad-((y-minV)/(maxV-minV))*(H-pad*2);
+  const pts=points.map(p=>[pad+((parseISO(p.date).getTime()-t0)/span)*(W-pad*2), yPix(p.y)]);
   const line=pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ');
   const area=line+` L ${pts[pts.length-1][0].toFixed(1)} ${H-pad} L ${pad} ${H-pad} Z`;
   let grid='';
-  for(let g=0;g<=4;g++){ const y=pad+g*((H-pad*2)/4), v=maxV*(1-g/4);
-    grid+=`<line x1="${pad}" y1="${y}" x2="${W-pad}" y2="${y}" stroke="var(--line)" stroke-width="1" opacity=".5"/><text x="4" y="${y+3}" fill="var(--muted)" font-size="9.5">${v.toFixed(0)}</text>`; }
-  el.innerHTML=`<svg width="100%" height="${H}" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet">
-    <defs><linearGradient id="area" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="rgba(255,107,53,.35)"/><stop offset="1" stop-color="rgba(255,107,53,0)"/></linearGradient></defs>
-    ${grid}<path d="${area}" fill="url(#area)"/><path d="${line}" fill="none" stroke="var(--accent)" stroke-width="2.5"/>
-    <circle cx="${pts[pts.length-1][0]}" cy="${pts[pts.length-1][1]}" r="4.5" fill="var(--accent-2)"/></svg>`;
+  for(let g=0;g<=4;g++){ const y=pad+g*((H-pad*2)/4), v=maxV-g*((maxV-minV)/4);
+    grid+=`<line x1="${pad}" y1="${y}" x2="${W-pad}" y2="${y}" stroke="var(--line)" stroke-width="1" opacity=".5"/><text x="4" y="${y+3}" fill="var(--muted)" font-size="9.5">${opts.axisFmt?opts.axisFmt(v):v.toFixed(1)}</text>`; }
+  const dots=pts.map((p,i)=>`<circle cx="${p[0]}" cy="${p[1]}" r="3.5" fill="var(--panel)" stroke="var(--accent)" stroke-width="2"><title>${esc(opts.valueFmt(points[i].y))} — ${fmtDate(points[i].date)}${points[i].label?' · '+esc(points[i].label):''}</title></circle>`).join('');
+  // trend badge: compare first-half avg vs second-half avg
+  const half=Math.max(1,Math.floor(points.length/2));
+  const firstAvg=points.slice(0,half).reduce((s,p)=>s+p.y,0)/half;
+  const lastAvg=points.slice(-half).reduce((s,p)=>s+p.y,0)/half;
+  const improving = opts.higherIsBetter ? lastAvg>firstAvg : lastAvg<firstAvg;
+  const pctChange = Math.abs(((lastAvg-firstAvg)/firstAvg)*100);
+  const badge = pctChange<1.5 ? `<span class="trend-badge">➡️ Holding steady</span>` : improving ? `<span class="trend-badge up">📈 Improving ~${pctChange.toFixed(0)}%</span>` : `<span class="trend-badge down">📉 Down ~${pctChange.toFixed(0)}%</span>`;
+  el.innerHTML=`<div style="display:flex;align-items:baseline;gap:8px;margin:2px 0 6px">
+      <div style="font-size:24px;font-weight:800">${opts.valueFmt(points[points.length-1].y)}</div>
+      <div style="color:var(--muted);font-size:12px">latest · ${fmtDate(points[points.length-1].date)}</div>${badge}
+    </div>
+    <svg width="100%" height="${H}" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet">
+    <defs><linearGradient id="grad-${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="rgba(255,107,53,.35)"/><stop offset="1" stop-color="rgba(255,107,53,0)"/></linearGradient></defs>
+    ${grid}<path d="${area}" fill="url(#grad-${id})"/><path d="${line}" fill="none" stroke="var(--accent)" stroke-width="2.5"/>${dots}
+    <circle cx="${pts[pts.length-1][0]}" cy="${pts[pts.length-1][1]}" r="5" fill="var(--accent-2)"/></svg>`;
+}
+function drawVdotChart(a,id){
+  const data=vdotTrendData(a);
+  drawTrendChart(id, data, {
+    higherIsBetter:true,
+    valueFmt:v=>`VDOT ${v.toFixed(1)}`,
+    axisFmt:v=>v.toFixed(0),
+    emptyTitle:'No fitness results logged yet',
+    emptyBody:`Save a race or time-trial result in the 🧮 Pace Calculator to start tracking ${esc(a.name.split(' ')[0])}'s fitness over time.`,
+  });
+}
+function drawEasyPaceChart(a,id){
+  const data=easyPaceTrendData(a);
+  drawTrendChart(id, data, {
+    higherIsBetter:false,
+    valueFmt:v=>`${paceSecToStr(v)}/${unitLabel()}`,
+    axisFmt:v=>paceSecToStr(v),
+    emptyTitle:'No easy runs logged yet',
+    emptyBody:'Log some Easy runs to see average easy-effort pace trend weekly — a great automatic fitness signal.',
+  });
 }
 function distByType(a){ const m={}; Object.keys(TYPES).forEach(k=>m[k]=0); doneRuns(a).forEach(r=>m[r.type]+=r.distance); return m; }
 function drawTypeBars(m,id){
@@ -1648,14 +1800,16 @@ function renderShare(a){
       <div class="card stat"><h3>Streak</h3><div class="num">${st.current}<small> wks 🔥</small></div><div class="sub">best ${st.longest} weeks</div></div>
       ${raceHtml || `<div class="card stat"><h3>This Month</h3><div class="num">${fmtDist(mo)}<small> ${unitLabel()}</small></div><div class="sub">rolling</div></div>`}
     </div>
-    <div class="card chart-box" style="margin-top:18px"><h3 style="margin-bottom:14px">Your Journey — cumulative ${unitLabel()}</h3><div id="shareCum"></div></div>
+    <div class="card chart-box" style="margin-top:18px"><h3 style="margin-bottom:14px">Your Journey — fitness trend</h3><div id="shareTrend"></div></div>
     <div class="grid" style="grid-template-columns:1fr 1fr;margin-top:18px">
       <div><div class="section-title">📋 Coming up</div>
         ${nextPlan.length?nextPlan.map(r=>runItemHTML(r)).join(''):`<div class="card">${emptyHTML('Nothing scheduled','Your coach hasn’t prescribed upcoming runs yet.')}</div>`}</div>
       <div><div class="section-title">✅ Recent sessions</div>
         ${recent.length?recent.map(r=>runItemHTML(r)).join(''):`<div class="card">${emptyHTML('No runs yet','Your log will appear here.')}</div>`}</div>
     </div>`;
-  drawCumChart(a,'shareCum'); wireRunItems();
+  const shareVdot=vdotTrendData(a);
+  if(shareVdot.length>=2) drawVdotChart(a,'shareTrend'); else drawEasyPaceChart(a,'shareTrend');
+  wireRunItems();
 }
 
 /* ============================================================
@@ -1666,6 +1820,7 @@ function closeModal(){ $('#modalBg').classList.remove('open'); }
 $('#modalBg').addEventListener('click',e=>{ if(e.target.id==='modalBg') closeModal(); });
 
 let draftSets=[]; let draftMode='done'; let draftType='easy';
+let actualWorkout={distance:400,unit:'m',restSec:90,times:[0,0,0,0,0,0]};   // actual logged interval/tempo/fartlek reps
 let runModalCtx=null;   // {dateISO, editId, forceMode} — lets "back to workout" from the pace calculator restore this session
 function openRunModal(dateISO, editId=null, forceMode=null, preserve=false){
   const a=currentAthlete();
@@ -1678,14 +1833,18 @@ function openRunModal(dateISO, editId=null, forceMode=null, preserve=false){
   const type = preserve ? draftType : (r? r.type : 'easy');
   if(!preserve){ draftType = type; }
   if(!preserve){ draftSets = r&&r.workout ? JSON.parse(JSON.stringify(r.workout.sets)) : [{reps:6,effort:'400m',target:'',rest:'90s'}]; }
+  if(!preserve){
+    const aw = r&&r.workout&&r.workout.actual;
+    actualWorkout = aw ? JSON.parse(JSON.stringify(aw)) : {distance:400,unit:'m',restSec:90,times:[0,0,0,0,0,0]};
+  }
   const wu = r&&r.workout ? r.workout.warmup : {dist:2,dur:12};
   const cd = r&&r.workout ? r.workout.cooldown : {dist:1.5,dur:9};
   const isPlan = draftMode==='planned';
-  // split stored decimal minutes into mm + ss for the duration inputs
-  let durMin='', durSec='';
+  // split stored decimal minutes into h + mm + ss for the duration inputs
+  let durH='', durMin='', durSec='';
   if(r && !TYPES[type].isRest && r.duration){
     const totalSec=Math.round(r.duration*60);
-    durMin=Math.floor(totalSec/60); durSec=totalSec%60;
+    durH=Math.floor(totalSec/3600); durMin=Math.floor((totalSec%3600)/60); durSec=totalSec%60;
   }
   openModal(`
     <div class="modal-head"><h2>${r?'Edit':(isPlan?'Prescribe':'Log')} ${isPlan?'Workout':'Run'} — ${esc(a.name.split(' ')[0])}</h2><button class="close" onclick="closeModal()">×</button></div>
@@ -1703,7 +1862,9 @@ function openRunModal(dateISO, editId=null, forceMode=null, preserve=false){
         <div class="field"><label>${isPlan?'Target':'Total'} distance (${unitLabel()})</label><input type="number" step="0.01" id="f-dist" value="${r&&!TYPES[type].isRest?fmtDist(r.distance,2):''}" placeholder="0.00"></div>
         <div class="field"><label>${isPlan?'Est.':'Total'} time</label>
           <div style="display:flex;align-items:center;gap:6px">
-            <input type="number" step="1" min="0" id="f-dur-min" value="${durMin}" placeholder="mm" style="flex:1;min-width:0">
+            <input type="number" step="1" min="0" id="f-dur-h" value="${durH}" placeholder="h" style="flex:1;min-width:0">
+            <span style="color:var(--muted);font-weight:800">:</span>
+            <input type="number" step="1" min="0" max="59" id="f-dur-min" value="${durMin}" placeholder="mm" style="flex:1;min-width:0">
             <span style="color:var(--muted);font-weight:800">:</span>
             <input type="number" step="1" min="0" max="59" id="f-dur-sec" value="${durSec}" placeholder="ss" style="flex:1;min-width:0">
           </div></div>
@@ -1711,6 +1872,46 @@ function openRunModal(dateISO, editId=null, forceMode=null, preserve=false){
       <div id="restDateRow" style="display:${TYPES[type].isRest?'block':'none'}">
         <div class="field"><label>Date</label><input type="date" id="f-date-rest" value="${date}"></div>
         <div class="help">😴 Rest day — no running. Recovery, sleep and adaptation. This shows on the calendar as a scheduled day off.</div>
+      </div>
+      <div id="workoutSection" style="display:${TYPES[type].structured?'block':'none'}">
+        <div id="setsBuilderWrap" style="display:${isPlan?'block':'none'}">
+          <div class="field"><label>Structured workout builder</label>
+            <div class="wb"><div class="wb-title">⚡ Main set</div>
+              <div class="set-labels"><span>Reps</span><span>Distance / Time</span><span>Target pace</span><span>Recovery</span><span></span></div>
+              <div id="setRows"></div>
+              <button class="add-set" onclick="addSet()">＋ Add another set</button>
+              <div class="wu-cd">
+                <div><label style="font-size:11px;color:var(--muted);font-weight:700">WARM-UP</label><div class="field-row"><input type="number" step="0.1" id="wu-dist" value="${wu.dist}" placeholder="km"><input type="number" id="wu-dur" value="${wu.dur}" placeholder="min"></div></div>
+                <div><label style="font-size:11px;color:var(--muted);font-weight:700">COOL-DOWN</label><div class="field-row"><input type="number" step="0.1" id="cd-dist" value="${cd.dist}" placeholder="km"><input type="number" id="cd-dur" value="${cd.dur}" placeholder="min"></div></div>
+              </div>
+              <div class="help">Distance boxes are in km regardless of display unit. Leave blank if unused.</div>
+            </div>
+          </div>
+        </div>
+        <div id="actualWorkoutWrap" style="display:${isPlan?'none':'block'}">
+          <div class="field"><label>Log your actual reps</label>
+            <div class="aw-setup">
+              <div class="field" style="margin:0"><label style="font-size:11px">Rep distance</label><input type="number" step="0.01" min="0" id="aw-dist" value="${actualWorkout.distance}" placeholder="800" oninput="setActualMeta()"></div>
+              <div class="field" style="margin:0"><label style="font-size:11px">Unit</label>
+                <select id="aw-unit" onchange="setActualMeta()">
+                  <option value="m" ${actualWorkout.unit==='m'?'selected':''}>m</option>
+                  <option value="km" ${actualWorkout.unit==='km'?'selected':''}>km</option>
+                  <option value="mi" ${actualWorkout.unit==='mi'?'selected':''}>mi</option>
+                </select></div>
+              <div class="field" style="margin:0"><label style="font-size:11px">How many reps</label><input type="number" min="1" max="40" id="aw-reps" value="${actualWorkout.times.length}" placeholder="6" oninput="setActualReps(this.value)"></div>
+              <div class="field" style="margin:0"><label style="font-size:11px">Rest between</label>
+                <div style="display:flex;align-items:center;gap:6px">
+                  <input type="number" min="0" id="aw-rest-m" value="${Math.floor(actualWorkout.restSec/60)}" placeholder="mm" oninput="setActualMeta()" style="flex:1;min-width:0">
+                  <span style="color:var(--muted);font-weight:800">:</span>
+                  <input type="number" min="0" max="59" id="aw-rest-s" value="${actualWorkout.restSec%60}" placeholder="ss" oninput="setActualMeta()" style="flex:1;min-width:0">
+                </div></div>
+            </div>
+            <div id="awRows" class="aw-reps"></div>
+            <div id="awSummary"></div>
+            <div class="help" style="margin-top:10px">Total distance &amp; time above auto-fill from these reps (main set only, no rest after the last one) — nudge them manually to add warm-up/cool-down.</div>
+          </div>
+        </div>
+        <div id="paceHelperWrap">${paceHelperHTML(a)}</div>
       </div>
       <div id="stridesSection" style="display:${TYPES[type].isRest?'none':'block'}">
         <div class="field"><label>Strides / hill sprints (optional)</label>
@@ -1728,21 +1929,6 @@ function openRunModal(dateISO, editId=null, forceMode=null, preserve=false){
           <div class="help">Short accelerations after an easy or long run to build speed &amp; strength — e.g. 6×100m strides or 8×10s hill sprints.</div>
         </div>
       </div>
-      <div id="workoutSection" style="display:${TYPES[type].structured?'block':'none'}">
-        <div class="field"><label>Structured workout builder</label>
-          <div class="wb"><div class="wb-title">⚡ Main set</div>
-            <div class="set-labels"><span>Reps</span><span>Distance / Time</span><span>Target pace</span><span>Recovery</span><span></span></div>
-            <div id="setRows"></div>
-            <button class="add-set" onclick="addSet()">＋ Add another set</button>
-            <div class="wu-cd">
-              <div><label style="font-size:11px;color:var(--muted);font-weight:700">WARM-UP</label><div class="field-row"><input type="number" step="0.1" id="wu-dist" value="${wu.dist}" placeholder="km"><input type="number" id="wu-dur" value="${wu.dur}" placeholder="min"></div></div>
-              <div><label style="font-size:11px;color:var(--muted);font-weight:700">COOL-DOWN</label><div class="field-row"><input type="number" step="0.1" id="cd-dist" value="${cd.dist}" placeholder="km"><input type="number" id="cd-dur" value="${cd.dur}" placeholder="min"></div></div>
-            </div>
-            <div class="help">Distance boxes are in km regardless of display unit. Leave blank if unused.</div>
-          </div>
-          <div id="paceHelperWrap">${paceHelperHTML(a)}</div>
-        </div>
-      </div>
       <div id="doneFields" style="display:${isPlan?'none':'block'}">
         <div class="field" id="rpeField" style="display:${TYPES[type].isRest?'none':'block'}"><label>How did it feel? (RPE 1–10)</label>
           <div class="rpe-row" id="rpeRow">${[1,2,3,4,5,6,7,8,9,10].map(n=>`<div class="rp ${r&&r.rpe===n?'sel':''}" data-rpe="${n}">${n}</div>`).join('')}</div></div>
@@ -1758,6 +1944,7 @@ function openRunModal(dateISO, editId=null, forceMode=null, preserve=false){
       <button class="btn btn-primary" onclick="saveRun('${editId||''}')">${r?'Save changes':(isPlan?'Prescribe':'Save run')}</button>
     </div>`);
   renderSetRows();
+  if(!isPlan && TYPES[type].structured) renderActualRows();
   document.querySelectorAll('#typePicker .type-opt').forEach(o=>{ o.onclick=()=>{
     document.querySelectorAll('#typePicker .type-opt').forEach(x=>x.classList.remove('sel')); o.classList.add('sel');
     draftType=o.dataset.type;
@@ -1775,7 +1962,10 @@ function openRunModal(dateISO, editId=null, forceMode=null, preserve=false){
   document.querySelectorAll('#modeSwitch button').forEach(b=>{ b.onclick=()=>{
     draftMode=b.dataset.mode; document.querySelectorAll('#modeSwitch button').forEach(x=>x.classList.toggle('sel',x===b));
     const plan=draftMode==='planned';
-    $('#doneFields').style.display=plan?'none':'block'; $('#planFields').style.display=plan?'block':'none'; }; });
+    $('#doneFields').style.display=plan?'none':'block'; $('#planFields').style.display=plan?'block':'none';
+    if($('#setsBuilderWrap')) $('#setsBuilderWrap').style.display=plan?'block':'none';
+    if($('#actualWorkoutWrap')) $('#actualWorkoutWrap').style.display=plan?'none':'block';
+    if(!plan) renderActualRows(); }; });
 }
 function renderSetRows(){
   const el=$('#setRows'); if(!el) return;
@@ -1791,6 +1981,78 @@ function renderSetRows(){
 }
 function addSet(){ draftSets.push({reps:4,effort:'200m',target:'',rest:'60s'}); renderSetRows(); }
 function removeSet(i){ draftSets.splice(i,1); if(!draftSets.length) draftSets.push({reps:1,effort:'',target:'',rest:''}); renderSetRows(); }
+
+/* ---------- Actual interval/tempo/fartlek rep logging ---------- */
+function setActualReps(n){
+  n=Math.max(1,Math.min(40,parseInt(n)||1));
+  const times=actualWorkout.times;
+  if(n>times.length){ while(times.length<n) times.push(0); }
+  else { times.length=n; }
+  renderActualRows();
+}
+function setActualMeta(){
+  actualWorkout.distance=parseFloat($('#aw-dist').value)||0;
+  actualWorkout.unit=$('#aw-unit').value;
+  const rm=parseInt($('#aw-rest-m').value)||0, rs=Math.max(0,Math.min(59,parseInt($('#aw-rest-s').value)||0));
+  actualWorkout.restSec=rm*60+rs;
+  renderActualRows();
+}
+function setActualRepTime(i,which,val){
+  const cur=actualWorkout.times[i]||0;
+  let m=Math.floor(cur/60), s=cur%60;
+  if(which==='m') m=Math.max(0,parseInt(val)||0); else s=Math.max(0,Math.min(59,parseInt(val)||0));
+  actualWorkout.times[i]=m*60+s;
+  renderActualRowPace(i);
+  recalcActualTotals();
+}
+function actualRowPaceStr(timeSec){
+  const km=repDistToKm(actualWorkout.distance,actualWorkout.unit);
+  if(!km||!timeSec) return '—';
+  return paceSecToStr(timeSec/km)+'/'+unitLabel();
+}
+function renderActualRowPace(i){
+  const el=document.querySelector(`.aw-row[data-i="${i}"] .awp`); if(!el) return;
+  el.innerHTML=`${actualRowPaceStr(actualWorkout.times[i])}<small> pace</small>`;
+}
+function renderActualRows(){
+  const el=$('#awRows'); if(!el) return;
+  el.innerHTML=actualWorkout.times.map((t,i)=>{
+    const m=Math.floor(t/60), s=t%60;
+    return `<div class="aw-row" data-i="${i}">
+      <div class="awn">#${i+1}</div>
+      <div class="awt">
+        <input type="number" min="0" value="${t?m:''}" placeholder="mm" oninput="setActualRepTime(${i},'m',this.value)">
+        <span style="color:var(--muted);font-weight:800">:</span>
+        <input type="number" min="0" max="59" value="${t?String(s).padStart(2,'0'):''}" placeholder="ss" oninput="setActualRepTime(${i},'s',this.value)">
+      </div>
+      <div class="awp">${actualRowPaceStr(t)}<small> pace</small></div>
+    </div>`;
+  }).join('');
+  recalcActualTotals();
+}
+// auto-fill the Total distance / Total time fields from the logged reps (main set only)
+function recalcActualTotals(){
+  const wrap=$('#actualWorkoutWrap'); if(!wrap || wrap.style.display==='none') return;
+  const km=repDistToKm(actualWorkout.distance,actualWorkout.unit);
+  const reps=actualWorkout.times.length;
+  const timedReps=actualWorkout.times.filter(t=>t>0).length;
+  const totalKm=km*reps;
+  const totalSec=actualWorkout.times.reduce((s,t)=>s+t,0) + actualWorkout.restSec*Math.max(0,timedReps-1);
+  const sumEl=$('#awSummary');
+  if(sumEl){
+    const avgPace = timedReps ? actualWorkout.times.filter(t=>t>0).reduce((s,t)=>s+t,0)/(km*timedReps) : 0;
+    sumEl.innerHTML = totalKm>0 ? `<div class="aw-summary">
+      <div>Main set distance<b>${fmtDist(totalKm)} ${unitLabel()}</b></div>
+      <div>Main set time<b>${secToClock(totalSec)}</b></div>
+      <div>Avg rep pace<b>${avgPace?paceSecToStr(avgPace)+'/'+unitLabel():'—'}</b></div>
+    </div>` : '';
+  }
+  if(totalKm>0 && $('#f-dist')){
+    $('#f-dist').value=fmtDist(totalKm,2);
+    const h=Math.floor(totalSec/3600), m=Math.floor((totalSec%3600)/60), s=Math.round(totalSec%60);
+    if($('#f-dur-h')) $('#f-dur-h').value=h; if($('#f-dur-min')) $('#f-dur-min').value=m; if($('#f-dur-sec')) $('#f-dur-sec').value=s;
+  }
+}
 
 function saveRun(editId){
   const a=currentAthlete();
@@ -1809,14 +2071,29 @@ function saveRun(editId){
     return;
   }
   let dist=parseFloat($('#f-dist').value)||0; if(state.unit==='mi') dist*=KM_PER_MI;
+  const durHInput=parseInt($('#f-dur-h').value)||0;
   const durMinInput=parseInt($('#f-dur-min').value)||0;
   const durSecInput=Math.max(0,Math.min(59,parseInt($('#f-dur-sec').value)||0));
-  const dur=durMinInput+durSecInput/60;
+  const dur=durHInput*60+durMinInput+durSecInput/60;
   let workout=null;
   if(TYPES[type].structured){
-    workout={ warmup:{dist:parseFloat($('#wu-dist').value)||0,dur:parseInt($('#wu-dur').value)||0},
-      cooldown:{dist:parseFloat($('#cd-dist').value)||0,dur:parseInt($('#cd-dur').value)||0},
-      sets:draftSets.filter(s=>s.effort).map(s=>({reps:+s.reps||1,effort:s.effort,target:s.target,rest:s.rest})) };
+    const wuF={dist:parseFloat($('#wu-dist').value)||0,dur:parseInt($('#wu-dur').value)||0};
+    const cdF={dist:parseFloat($('#cd-dist').value)||0,dur:parseInt($('#cd-dur').value)||0};
+    if(planned){
+      workout={ warmup:wuF, cooldown:cdF,
+        sets:draftSets.filter(s=>s.effort).map(s=>({reps:+s.reps||1,effort:s.effort,target:s.target,rest:s.rest})),
+        actual:null };
+    } else {
+      // logging actual reps via the "Log your actual reps" builder
+      const aw=actualWorkout;
+      const km=repDistToKm(aw.distance,aw.unit);
+      const timedTimes=aw.times.filter(t=>t>0);
+      const avgSec = (timedTimes.length && km) ? timedTimes.reduce((s,t)=>s+t,0)/(km*timedTimes.length) : 0;
+      const distLabel = aw.distance ? `${aw.distance}${aw.unit}` : '—';
+      const restLabel = aw.restSec ? `${Math.floor(aw.restSec/60)}:${String(aw.restSec%60).padStart(2,'0')}` : '';
+      const summarySet = { reps:aw.times.length, effort:distLabel, target:avgSec?paceSecToStr(avgSec)+'/'+unitLabel()+' avg':'', rest:restLabel };
+      workout={ warmup:wuF, cooldown:cdF, sets:[summarySet], actual:JSON.parse(JSON.stringify(aw)) };
+    }
   }
   // strides / hill sprints add-on
   let strides=null;
@@ -1840,8 +2117,16 @@ function openRunDetail(id){
   if(r.workout){
     const setHtml=r.workout.sets.map(s=>`<div class="wk-set"><span class="rep">${s.reps}×</span><span style="font-weight:700">${esc(s.effort)}</span>
       ${s.target?`<span style="color:var(--muted)">@ ${esc(s.target)}</span>`:''}${s.rest?`<span style="margin-left:auto;color:var(--muted)">rest ${esc(s.rest)}</span>`:''}</div>`).join('');
+    let repBlk='';
+    const aw=r.workout.actual;
+    if(aw && aw.times && aw.times.some(t=>t>0)){
+      const km=repDistToKm(aw.distance,aw.unit);
+      const rows=aw.times.map((t,i)=> t>0 ? `<div class="wk-set"><span class="rep">#${i+1}</span><span style="font-weight:700">${secToClock(t)}</span><span style="margin-left:auto;color:var(--muted)">${km?paceSecToStr(t/km)+'/'+unitLabel():''}</span></div>` : '').join('');
+      repBlk=`<div class="wk-block"><div class="h">⏱️ Rep-by-rep</div>${rows}</div>`;
+    }
     wk=`<div class="wk-block"><div class="h">🔥 Warm-up</div>${r.workout.warmup.dist||r.workout.warmup.dur?`${r.workout.warmup.dist} km · ${r.workout.warmup.dur} min easy`:'—'}</div>
       <div class="wk-block"><div class="h">⚡ Main set</div>${setHtml||'—'}</div>
+      ${repBlk}
       <div class="wk-block"><div class="h">💧 Cool-down</div>${r.workout.cooldown.dist||r.workout.cooldown.dur?`${r.workout.cooldown.dist} km · ${r.workout.cooldown.dur} min easy`:'—'}</div>`;
   }
   const metrics = isRest
@@ -1935,7 +2220,7 @@ function saveAthlete(id){
   const data={name,level:$('#a-level').value,races,weeklyTarget:+target.toFixed(1)};
   let athlete;
   if(id){ athlete=state.athletes.find(x=>x.id===id); Object.assign(athlete,data); }
-  else { athlete={id:uid(),runs:[],benchmark:null,...data}; state.athletes.push(athlete); state.activeAthlete=athlete.id; }
+  else { athlete={id:uid(),runs:[],benchmark:null,benchmarkHistory:[],...data}; state.athletes.push(athlete); state.activeAthlete=athlete.id; }
   syncPrimaryRace(athlete);
   save(); closeModal(); render(); toast(id?'Athlete updated ✓':'Athlete added ✓');
 }
@@ -1962,11 +2247,33 @@ function toggleTheme(){ state.theme=state.theme==='light'?'dark':'light'; applyT
 /* ============================================================
    BOOT
    ============================================================ */
+function restoreBackup(){
+  const backup=localStorage.getItem('elevate_v3_backup');
+  if(!backup){ toast('No backup found yet — backups are created automatically after your first save.'); return; }
+  if(!confirm('Restore the last automatic backup? This will replace whatever is currently loaded with the previous saved version. Your current in-app data will be overwritten.')) return;
+  try{
+    state=JSON.parse(backup); migrate(); save(); applyTheme(); setView('dashboard');
+    toast('Backup restored ✓');
+  }catch(e){ toast('Backup could not be read — it may be corrupted too.'); }
+}
 function boot(){
   const isLink=tryLoadShareLink();
   if(!isLink && !load()){ seed(); save(); }
   if(!state.theme) state.theme='dark';
   applyTheme();
+  // cross-tab safety: if another tab saves newer data while this tab is open,
+  // don't let this tab's next save silently clobber it — reload in place instead
+  if(!isLink){
+    window.addEventListener('storage', e=>{
+      if(e.key==='elevate_v3' && e.newValue && e.newValue!==JSON.stringify(state)){
+        if(document.querySelector('.modal-bg.open')){
+          toast('Data changed in another tab — please finish here, then reload.');
+        } else {
+          try{ state=JSON.parse(e.newValue); migrate(); render(); toast('Synced from another tab ✓'); }catch(err){ /* ignore malformed event */ }
+        }
+      }
+    });
+  }
   document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>{ if(shareMode) exitShare(); setView(b.dataset.view); closeSidebar(); });
   $('#hamburgerBtn').onclick=openSidebar;
   $('#sidebarBackdrop').onclick=closeSidebar;
@@ -1974,6 +2281,7 @@ function boot(){
   $('#paceBtn').onclick=()=>openPaceCalc();
   $('#importBtn').onclick=()=>$('#importFile').click();
   $('#importFile').onchange=e=>{ importData(e.target.files[0]); e.target.value=''; };
+  $('#restoreBackupLink').onclick=e=>{ e.preventDefault(); restoreBackup(); };
   document.querySelectorAll('#unitToggle button').forEach(b=>b.onclick=()=>{
     state.unit=b.dataset.unit; document.querySelectorAll('#unitToggle button').forEach(x=>x.classList.toggle('active',x===b)); save(); render(); });
   document.querySelectorAll('#unitToggle button').forEach(b=>b.classList.toggle('active',b.dataset.unit===state.unit));
