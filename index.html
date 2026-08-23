@@ -206,6 +206,16 @@ a{color:inherit}
 .pc-hist-row{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px;align-items:center;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;padding:8px 10px;font-size:12.5px}
 .pc-hist-row .phd{color:var(--muted)}
 .pc-hist-row .phv{font-weight:800;font-variant-numeric:tabular-nums}
+.tmpl-list{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+.tmpl-row{display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--panel-2);border:1px solid var(--line);border-radius:11px;padding:10px 12px}
+.tmpl-name{font-weight:700;font-size:13px}
+.tmpl-meta{color:var(--muted);font-size:11.5px;margin-top:2px}
+.tmpl-actions{display:flex;gap:8px;align-items:center;flex:none}
+.cw-row{display:grid;grid-template-columns:76px 1fr 46px;gap:10px;align-items:center;margin-bottom:9px;font-size:12px}
+.cw-label{color:var(--muted);font-weight:600}
+.cw-bar{height:10px;background:var(--panel-2);border-radius:6px;overflow:hidden}
+.cw-fill{height:100%;border-radius:6px;transition:width .3s}
+.cw-count{text-align:right;color:var(--muted);font-variant-numeric:tabular-nums;font-weight:700}
 .trend-tabs{display:flex;gap:6px;margin-bottom:14px;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:4px;max-width:420px}
 .trend-tabs button{flex:1;padding:8px;border-radius:7px;font-size:12px;font-weight:700;color:var(--muted)}
 .trend-tabs button.active{background:var(--accent);color:#fff}
@@ -504,6 +514,7 @@ let state = {
   calMonth: new Date().getMonth(),
   calYear: new Date().getFullYear(),
   athletes: [],
+  templates: [],
 };
 let shareMode = false;   // athlete read-only view
 let currentView = 'dashboard';
@@ -548,6 +559,7 @@ function load(){
 // defensive: convert any legacy 'recovery' runs into rest days, and legacy single-race
 // athletes into the races[] array (keeping goalRace/raceDate mirrored for old UI reads)
 function migrate(){
+  if(!Array.isArray(state.templates)) state.templates=[];
   (state.athletes||[]).forEach(a=>{
     (a.runs||[]).forEach(r=>{
       if(r.type==='recovery'){ r.type='rest'; r.distance=0; r.duration=0; r.workout=null; }
@@ -676,8 +688,88 @@ function paceSecToStr(secPerKm){ if(!secPerKm||secPerKm<=0) return '—'; const 
 function secToClock(sec){ sec=Math.round(sec); const h=Math.floor(sec/3600),m=Math.floor((sec%3600)/60),s=sec%60; return h>0?`${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`:`${m}:${String(s).padStart(2,'0')}`; }
 // split time for a rep of a given distance in metres, at a sec/km pace
 function splitFor(secPerKm,metres){ const sec=secPerKm*(metres/1000); return secToClock(sec); }
+// warm-up / cool-down input: a single Time-or-Distance choice instead of two ambiguous boxes
+function warmCoolFieldHTML(prefix, val, mode){
+  return `<div style="display:flex;gap:8px;align-items:center">
+    <select id="${prefix}-mode" onchange="toggleWuCdMode('${prefix}')" style="max-width:118px;flex:none">
+      <option value="time" ${mode==='time'?'selected':''}>⏱ Time</option>
+      <option value="dist" ${mode==='dist'?'selected':''}>📏 Distance</option>
+    </select>
+    <input type="number" step="1" min="0" id="${prefix}-dur" value="${val.dur||''}" placeholder="minutes" oninput="syncWuCdField('${prefix}','dur')" style="display:${mode==='time'?'block':'none'};flex:1">
+    <input type="number" step="0.1" min="0" id="${prefix}-dist" value="${val.dist||''}" placeholder="km" oninput="syncWuCdField('${prefix}','dist')" style="display:${mode==='dist'?'block':'none'};flex:1">
+  </div>`;
+}
+function toggleWuCdMode(prefix){
+  const mode=$('#'+prefix+'-mode').value;
+  const target = prefix==='wu' ? draftWarmup : draftCooldown;
+  target.mode = mode;
+  $('#'+prefix+'-dur').style.display = mode==='time'?'block':'none';
+  $('#'+prefix+'-dist').style.display = mode==='dist'?'block':'none';
+}
+function syncWuCdField(prefix, key){
+  const target = prefix==='wu' ? draftWarmup : draftCooldown;
+  const el = $('#'+prefix+'-'+key);
+  target[key] = key==='dist' ? (parseFloat(el.value)||0) : (parseInt(el.value)||0);
+}
+// consistent display for a warm-up/cool-down value wherever it's shown (run detail, etc.)
+function fmtWarmCool(w){
+  if(!w) return '—';
+  const hasDist=w.dist>0, hasDur=w.dur>0;
+  if(hasDist && hasDur) return `${w.dist} km · ${w.dur} min easy`;
+  if(hasDist) return `${w.dist} km easy`;
+  if(hasDur) return `${w.dur} min easy`;
+  return '—';
+}
 // convert a rep distance entered as m/km/mi into internal km
 function repDistToKm(value,unit){ if(!value) return 0; if(unit==='m') return value/1000; if(unit==='mi') return value*KM_PER_MI; return value; }
+
+/* ---------- Workout templates (reusable prescribed structures) ---------- */
+function saveAsTemplate(){
+  const validSets = draftSets.filter(s=>s.effort);
+  if(!validSets.length){ toast('Add at least one set first'); return; }
+  const name = prompt('Name this template (e.g. "Tuesday 6x800m"):', `${SHORT_LABEL[draftType]} · ${validSets[0].reps}×${validSets[0].effort}`);
+  if(!name || !name.trim()) return;
+  state.templates.push({
+    id: uid(), name: name.trim(), type: draftType,
+    warmup: {...draftWarmup}, cooldown: {...draftCooldown},
+    sets: JSON.parse(JSON.stringify(validSets)),
+    createdAt: todayISO(),
+  });
+  save();
+  toast('Template saved ✓');
+}
+function openTemplateLibrary(){
+  const list = state.templates.filter(t=>t.type===draftType);
+  const other = state.templates.filter(t=>t.type!==draftType);
+  const rowHTML = t => `<div class="tmpl-row">
+      <div class="tmpl-info"><div class="tmpl-name">${TYPES[t.type].icon} ${esc(t.name)}</div>
+        <div class="tmpl-meta">${t.sets.map(s=>`${s.reps}×${esc(s.effort)}`).join(' + ')}</div></div>
+      <div class="tmpl-actions"><button class="pc-open-btn" onclick="useTemplate('${t.id}')">Use</button><button class="run-del" onclick="deleteTemplate('${t.id}')" title="Delete">🗑</button></div>
+    </div>`;
+  openModal(`
+    <div class="modal-head"><h2>📋 Workout templates</h2><button class="close" onclick="backToWorkout()">×</button></div>
+    <div class="modal-body">
+      ${list.length? `<div class="bld-section"><span class="bld-legend">${TYPES[draftType].label} templates</span><div class="tmpl-list">${list.map(rowHTML).join('')}</div></div>` : `<div class="help">No saved ${TYPES[draftType].label.toLowerCase()} templates yet — build a session below, then "Save as template".</div>`}
+      ${other.length? `<div class="bld-section" style="margin-top:${list.length?'16px':'0'}"><span class="bld-legend">Other types</span><div class="tmpl-list">${other.map(rowHTML).join('')}</div></div>` : ''}
+    </div>
+    <div class="modal-foot"><button class="btn btn-ghost" onclick="backToWorkout()">← Back to workout</button></div>`, true);
+}
+function useTemplate(id){
+  const t=state.templates.find(x=>x.id===id); if(!t) return;
+  draftType=t.type;
+  draftSets=JSON.parse(JSON.stringify(t.sets));
+  draftWarmup={...t.warmup};
+  draftCooldown={...t.cooldown};
+  toast(`Loaded "${t.name}" ✓`);
+  backToWorkout();
+}
+function deleteTemplate(id){
+  const t=state.templates.find(x=>x.id===id); if(!t) return;
+  if(!confirm(`Delete template "${t.name}"?`)) return;
+  state.templates=state.templates.filter(x=>x.id!==id);
+  save();
+  openTemplateLibrary();
+}
 
 /* ---------- Pace Calculator modal + inline workout helper ---------- */
 let pcState=null;     // {distKey, timeSec, date, athleteId, fromWorkout}
@@ -1121,7 +1213,13 @@ function wireRunItems(){
     b.addEventListener('click',e=>{ e.stopPropagation(); deleteRun(b.dataset.del); });
   });
 }
-function deleteRun(id){ const a=currentAthlete(); a.runs=a.runs.filter(r=>r.id!==id); save(); render(); toast('Deleted'); }
+function deleteRun(id){
+  const a=currentAthlete();
+  const r=a.runs.find(x=>x.id===id);
+  const label = r ? `${TYPES[r.type]?.label||r.type} on ${fmtDate(r.date)}` : 'this run';
+  if(!confirm(`Delete ${label}? This can't be undone.`)) return;
+  a.runs=a.runs.filter(r=>r.id!==id); save(); render(); toast('Deleted');
+}
 function emptyHTML(t,s){ return `<div class="empty"><div class="e-ic">🏃</div><div style="font-weight:700;color:var(--text)">${t}</div><div>${s}</div></div>`; }
 function renderNoAthlete(){
   $('#view-'+currentView).innerHTML=`<div class="card">${emptyHTML('No athletes yet','Go to the Athletes tab to add your first runner.')}
@@ -1185,6 +1283,7 @@ function renderPlan(a){
   upcoming.forEach(r=>{ const k=weekKey(parseISO(r.date)); (groups[k]=groups[k]||[]).push(r); });
   // last-4-week compliance: planned that are now in the past vs done that week
   const comp=planCompliance(a);
+  const weeklyComp=weeklyCompliance(a,8);
   let weeksHtml='';
   const keys=Object.keys(groups).sort();
   if(!keys.length){
@@ -1211,6 +1310,19 @@ function renderPlan(a){
       <div class="card stat"><h3>4-Wk Compliance</h3><div class="num">${comp.pct}<small>%</small></div><div class="sub">${comp.done}/${comp.planned} planned sessions done</div></div>
       <div class="card stat"><h3>Adherence Trend</h3><div class="num">${comp.pct>=85?'🟢':comp.pct>=60?'🟡':'🔴'}</div><div class="sub">${comp.pct>=85?'On track':comp.pct>=60?'Slipping a little':'Needs a check-in'}</div></div>
     </div>
+    <div class="card" style="margin-top:18px">
+      <h3 style="margin-bottom:2px">Compliance <span style="font-weight:400;color:var(--muted);font-size:12px;text-transform:none;letter-spacing:0">— prescribed workouts actually completed, by week</span></h3>
+      ${weeklyComp.length ? `
+      <div class="cw-rows" style="margin-top:16px">
+        ${weeklyComp.map(w=>`<div class="cw-row">
+          <span class="cw-label">${fmtDate(w.weekStart)}</span>
+          <div class="cw-bar"><div class="cw-fill" style="width:${w.pct}%;background:${w.pct>=85?'var(--easy)':w.pct>=60?'var(--accent-2)':'var(--interval)'}"></div></div>
+          <span class="cw-count">${w.done}/${w.planned}</span>
+        </div>`).join('')}
+      </div>
+      <div class="help" style="margin-top:10px">Counted as completed if any logged run falls within a day of the prescribed date — doesn't require matching the exact workout type.</div>
+      ` : `<div class="help" style="margin-top:10px">No past weeks with prescribed workouts yet — once you've planned sessions and time has passed, weekly compliance shows up here.</div>`}
+    </div>
     <div style="margin-top:6px">${weeksHtml}</div>`;
   wireRunItems();
 }
@@ -1231,6 +1343,25 @@ function planCompliance(a){
   pastPlanned.forEach(p=>{ if(done.some(d=>Math.abs(parseISO(d.date)-parseISO(p.date))<=86400000)) hit++; });
   const planned=pastPlanned.length;
   return {planned, done:hit, pct: planned?Math.round(hit/planned*100):100};
+}
+// weekly breakdown of prescribed-vs-completed, for the Compliance card — only
+// includes weeks that actually had something prescribed and are now in the past
+function weeklyCompliance(a, numWeeks){
+  numWeeks = numWeeks||8;
+  const doneList=doneRuns(a);
+  const allPlanned=plannedRuns(a);
+  const todayMon=mondayOf(todayISO());
+  const weeks=[];
+  for(let i=numWeeks-1;i>=0;i--){
+    const wStart=addDays(todayMon,-7*i);
+    const wEnd=addDays(wStart,6);
+    const weekPlanned=allPlanned.filter(r=> r.date>=wStart && r.date<=wEnd && r.date<todayISO());
+    if(!weekPlanned.length) continue;
+    let hit=0;
+    weekPlanned.forEach(p=>{ if(doneList.some(d=>Math.abs(parseISO(d.date)-parseISO(p.date))<=86400000)) hit++; });
+    weeks.push({weekStart:wStart, planned:weekPlanned.length, done:hit, pct:Math.round(hit/weekPlanned.length*100)});
+  }
+  return weeks;
 }
 
 /* ============================================================
@@ -1820,6 +1951,7 @@ function closeModal(){ $('#modalBg').classList.remove('open'); }
 $('#modalBg').addEventListener('click',e=>{ if(e.target.id==='modalBg') closeModal(); });
 
 let draftSets=[]; let draftMode='done'; let draftType='easy';
+let draftWarmup={mode:'time',dist:0,dur:10}, draftCooldown={mode:'time',dist:0,dur:8};
 let actualWorkout={distance:400,unit:'m',restSec:90,times:[0,0,0,0,0,0]};   // actual logged interval/tempo/fartlek reps
 let runModalCtx=null;   // {dateISO, editId, forceMode} — lets "back to workout" from the pace calculator restore this session
 function openRunModal(dateISO, editId=null, forceMode=null, preserve=false){
@@ -1837,8 +1969,12 @@ function openRunModal(dateISO, editId=null, forceMode=null, preserve=false){
     const aw = r&&r.workout&&r.workout.actual;
     actualWorkout = aw ? JSON.parse(JSON.stringify(aw)) : {distance:400,unit:'m',restSec:90,times:[0,0,0,0,0,0]};
   }
-  const wu = r&&r.workout ? r.workout.warmup : {dist:2,dur:12};
-  const cd = r&&r.workout ? r.workout.cooldown : {dist:1.5,dur:9};
+  if(!preserve){
+    const wu0 = r&&r.workout ? r.workout.warmup : {dist:0,dur:10};
+    const cd0 = r&&r.workout ? r.workout.cooldown : {dist:0,dur:8};
+    draftWarmup = {mode: wu0.dist>0?'dist':'time', dist:wu0.dist||0, dur:wu0.dur||0};
+    draftCooldown = {mode: cd0.dist>0?'dist':'time', dist:cd0.dist||0, dur:cd0.dur||0};
+  }
   const isPlan = draftMode==='planned';
   // split stored decimal minutes into h + mm + ss for the duration inputs
   let durH='', durMin='', durSec='';
@@ -1857,17 +1993,20 @@ function openRunModal(dateISO, editId=null, forceMode=null, preserve=false){
         <div class="type-picker" id="typePicker">
           ${Object.keys(TYPES).map(k=>`<div class="type-opt ${k===type?'sel':''}" data-type="${k}"><span class="ti">${TYPES[k].icon}</span>${TYPES[k].label}</div>`).join('')}
         </div></div>
-      <div class="field-row-3" id="metricsRow" style="display:${TYPES[type].isRest?'none':'grid'}">
-        <div class="field"><label>Date</label><input type="date" id="f-date" value="${date}"></div>
-        <div class="field"><label>${isPlan?'Target':'Total'} distance (${unitLabel()})</label><input type="number" step="0.01" id="f-dist" value="${r&&!TYPES[type].isRest?fmtDist(r.distance,2):''}" placeholder="0.00"></div>
-        <div class="field"><label>${isPlan?'Est.':'Total'} time</label>
-          <div style="display:flex;align-items:center;gap:6px">
+      <div id="metricsRow" style="display:${TYPES[type].isRest?'none':'block'}">
+        <div class="field-row" style="margin-bottom:14px">
+          <div class="field" style="margin:0"><label>Date</label><input type="date" id="f-date" value="${date}"></div>
+          <div class="field" id="fDistWrap" style="margin:0;display:${(isPlan&&TYPES[type].structured)?'none':'block'}"><label>${isPlan?'Target':'Total'} distance (${unitLabel()})</label><input type="number" step="0.01" id="f-dist" value="${r&&!TYPES[type].isRest?fmtDist(r.distance,2):''}" placeholder="0.00"></div>
+        </div>
+        <div class="field" id="fDurWrap" style="display:${(isPlan&&TYPES[type].structured)?'none':'block'}"><label>${isPlan?'Est.':'Total'} time</label>
+          <div style="display:flex;align-items:center;gap:8px;max-width:340px">
             <input type="number" step="1" min="0" id="f-dur-h" value="${durH}" placeholder="h" style="flex:1;min-width:0">
             <span style="color:var(--muted);font-weight:800">:</span>
             <input type="number" step="1" min="0" max="59" id="f-dur-min" value="${durMin}" placeholder="mm" style="flex:1;min-width:0">
             <span style="color:var(--muted);font-weight:800">:</span>
             <input type="number" step="1" min="0" max="59" id="f-dur-sec" value="${durSec}" placeholder="ss" style="flex:1;min-width:0">
           </div></div>
+        <div id="metricsHiddenMsg" class="help" style="display:${(isPlan&&TYPES[type].structured)?'block':'none'}">Distance &amp; time aren't tracked here — the warm-up, main set and cool-down below define what's prescribed.</div>
       </div>
       <div id="restDateRow" style="display:${TYPES[type].isRest?'block':'none'}">
         <div class="field"><label>Date</label><input type="date" id="f-date-rest" value="${date}"></div>
@@ -1875,17 +2014,25 @@ function openRunModal(dateISO, editId=null, forceMode=null, preserve=false){
       </div>
       <div id="workoutSection" style="display:${TYPES[type].structured?'block':'none'}">
         <div id="setsBuilderWrap" style="display:${isPlan?'block':'none'}">
-          <div class="field"><label>Structured workout builder</label>
-            <div class="wb"><div class="wb-title">⚡ Main set</div>
-              <div class="set-labels"><span>Reps</span><span>Distance / Time</span><span>Target pace</span><span>Recovery</span><span></span></div>
-              <div id="setRows"></div>
-              <button class="add-set" onclick="addSet()">＋ Add another set</button>
-              <div class="wu-cd">
-                <div><label style="font-size:11px;color:var(--muted);font-weight:700">WARM-UP</label><div class="field-row"><input type="number" step="0.1" id="wu-dist" value="${wu.dist}" placeholder="km"><input type="number" id="wu-dur" value="${wu.dur}" placeholder="min"></div></div>
-                <div><label style="font-size:11px;color:var(--muted);font-weight:700">COOL-DOWN</label><div class="field-row"><input type="number" step="0.1" id="cd-dist" value="${cd.dist}" placeholder="km"><input type="number" id="cd-dur" value="${cd.dur}" placeholder="min"></div></div>
+          <div class="field"><label style="font-size:11px;color:var(--muted);font-weight:700">🔥 WARM-UP</label>
+            ${warmCoolFieldHTML('wu', draftWarmup, draftWarmup.mode)}
+          </div>
+          <div class="field"><label>⚡ Main set</label>
+            <div class="wb">
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:2px">
+                <div class="set-labels" style="margin:0;flex:1"><span>Reps</span><span>Distance / Time</span><span>Target pace</span><span>Recovery</span><span></span></div>
               </div>
-              <div class="help">Distance boxes are in km regardless of display unit. Leave blank if unused.</div>
+              <div id="setRows"></div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+                <button class="add-set" style="flex:none" onclick="addSet()">＋ Add another set</button>
+                <button type="button" class="pc-open-btn" onclick="openTemplateLibrary()">📋 Load template</button>
+                <button type="button" class="pc-open-btn" onclick="saveAsTemplate()">💾 Save as template</button>
+              </div>
             </div>
+          </div>
+          <div class="field"><label style="font-size:11px;color:var(--muted);font-weight:700">💧 COOL-DOWN</label>
+            ${warmCoolFieldHTML('cd', draftCooldown, draftCooldown.mode)}
+            <div class="help">Pick either a time or a distance for warm-up/cool-down — whichever you actually plan by.</div>
           </div>
         </div>
         <div id="actualWorkoutWrap" style="display:${isPlan?'none':'block'}">
@@ -1949,8 +2096,12 @@ function openRunModal(dateISO, editId=null, forceMode=null, preserve=false){
     document.querySelectorAll('#typePicker .type-opt').forEach(x=>x.classList.remove('sel')); o.classList.add('sel');
     draftType=o.dataset.type;
     const isRest=!!TYPES[o.dataset.type].isRest;
+    const hideMetrics = draftMode==='planned' && TYPES[o.dataset.type].structured;
     $('#workoutSection').style.display=(!isRest&&TYPES[o.dataset.type].structured)?'block':'none';
-    $('#metricsRow').style.display=isRest?'none':'grid';
+    $('#metricsRow').style.display=isRest?'none':'block';
+    if($('#fDistWrap')) $('#fDistWrap').style.display=hideMetrics?'none':'block';
+    if($('#fDurWrap')) $('#fDurWrap').style.display=hideMetrics?'none':'block';
+    if($('#metricsHiddenMsg')) $('#metricsHiddenMsg').style.display=hideMetrics?'block':'none';
     $('#restDateRow').style.display=isRest?'block':'none';
     $('#stridesSection').style.display=isRest?'none':'block';
     if($('#rpeField')) $('#rpeField').style.display=isRest?'none':'block';
@@ -1965,6 +2116,10 @@ function openRunModal(dateISO, editId=null, forceMode=null, preserve=false){
     $('#doneFields').style.display=plan?'none':'block'; $('#planFields').style.display=plan?'block':'none';
     if($('#setsBuilderWrap')) $('#setsBuilderWrap').style.display=plan?'block':'none';
     if($('#actualWorkoutWrap')) $('#actualWorkoutWrap').style.display=plan?'none':'block';
+    const hideMetrics = plan && TYPES[draftType].structured;
+    if($('#fDistWrap')) $('#fDistWrap').style.display=hideMetrics?'none':'block';
+    if($('#fDurWrap')) $('#fDurWrap').style.display=hideMetrics?'none':'block';
+    if($('#metricsHiddenMsg')) $('#metricsHiddenMsg').style.display=hideMetrics?'block':'none';
     if(!plan) renderActualRows(); }; });
 }
 function renderSetRows(){
@@ -2070,15 +2225,28 @@ function saveRun(editId){
     save(); closeModal(); render(); toast(editId?'Updated ✓':(planned?'Rest day scheduled ✓':'Rest day logged ✓'));
     return;
   }
-  let dist=parseFloat($('#f-dist').value)||0; if(state.unit==='mi') dist*=KM_PER_MI;
-  const durHInput=parseInt($('#f-dur-h').value)||0;
-  const durMinInput=parseInt($('#f-dur-min').value)||0;
-  const durSecInput=Math.max(0,Math.min(59,parseInt($('#f-dur-sec').value)||0));
-  const dur=durHInput*60+durMinInput+durSecInput/60;
+  const hideMetrics = planned && TYPES[type].structured;
+  let wuF={dist:0,dur:0}, cdF={dist:0,dur:0};
+  if(TYPES[type].structured){
+    wuF = draftWarmup.mode==='dist' ? {dist:draftWarmup.dist||0, dur:0} : {dist:0, dur:draftWarmup.dur||0};
+    cdF = draftCooldown.mode==='dist' ? {dist:draftCooldown.dist||0, dur:0} : {dist:0, dur:draftCooldown.dur||0};
+  }
+  let dist, dur;
+  if(hideMetrics){
+    // no manual distance/time for a prescribed interval/tempo/fartlek session —
+    // the warm-up + cool-down (which we do know precisely) stand in for it;
+    // the main set itself is defined by the reps below, not estimated here.
+    dist = wuF.dist + cdF.dist;
+    dur = wuF.dur + cdF.dur;
+  } else {
+    dist=parseFloat($('#f-dist').value)||0; if(state.unit==='mi') dist*=KM_PER_MI;
+    const durHInput=parseInt($('#f-dur-h').value)||0;
+    const durMinInput=parseInt($('#f-dur-min').value)||0;
+    const durSecInput=Math.max(0,Math.min(59,parseInt($('#f-dur-sec').value)||0));
+    dur=durHInput*60+durMinInput+durSecInput/60;
+  }
   let workout=null;
   if(TYPES[type].structured){
-    const wuF={dist:parseFloat($('#wu-dist').value)||0,dur:parseInt($('#wu-dur').value)||0};
-    const cdF={dist:parseFloat($('#cd-dist').value)||0,dur:parseInt($('#cd-dur').value)||0};
     if(planned){
       workout={ warmup:wuF, cooldown:cdF,
         sets:draftSets.filter(s=>s.effort).map(s=>({reps:+s.reps||1,effort:s.effort,target:s.target,rest:s.rest})),
@@ -2124,10 +2292,10 @@ function openRunDetail(id){
       const rows=aw.times.map((t,i)=> t>0 ? `<div class="wk-set"><span class="rep">#${i+1}</span><span style="font-weight:700">${secToClock(t)}</span><span style="margin-left:auto;color:var(--muted)">${km?paceSecToStr(t/km)+'/'+unitLabel():''}</span></div>` : '').join('');
       repBlk=`<div class="wk-block"><div class="h">⏱️ Rep-by-rep</div>${rows}</div>`;
     }
-    wk=`<div class="wk-block"><div class="h">🔥 Warm-up</div>${r.workout.warmup.dist||r.workout.warmup.dur?`${r.workout.warmup.dist} km · ${r.workout.warmup.dur} min easy`:'—'}</div>
+    wk=`<div class="wk-block"><div class="h">🔥 Warm-up</div>${fmtWarmCool(r.workout.warmup)}</div>
       <div class="wk-block"><div class="h">⚡ Main set</div>${setHtml||'—'}</div>
       ${repBlk}
-      <div class="wk-block"><div class="h">💧 Cool-down</div>${r.workout.cooldown.dist||r.workout.cooldown.dur?`${r.workout.cooldown.dist} km · ${r.workout.cooldown.dur} min easy`:'—'}</div>`;
+      <div class="wk-block"><div class="h">💧 Cool-down</div>${fmtWarmCool(r.workout.cooldown)}</div>`;
   }
   const metrics = isRest
     ? `<div class="dm" style="grid-column:1/-1"><div class="n">😴 Rest Day</div><div class="l">no running — recover, sleep, adapt</div></div>`
