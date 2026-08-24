@@ -705,11 +705,13 @@ function toggleWuCdMode(prefix){
   target.mode = mode;
   $('#'+prefix+'-dur').style.display = mode==='time'?'block':'none';
   $('#'+prefix+'-dist').style.display = mode==='dist'?'block':'none';
+  recalcActualTotals();
 }
 function syncWuCdField(prefix, key){
   const target = prefix==='wu' ? draftWarmup : draftCooldown;
   const el = $('#'+prefix+'-'+key);
   target[key] = key==='dist' ? (parseFloat(el.value)||0) : (parseInt(el.value)||0);
+  recalcActualTotals();
 }
 // consistent display for a warm-up/cool-down value wherever it's shown (run detail, etc.)
 function fmtWarmCool(w){
@@ -2013,10 +2015,10 @@ function openRunModal(dateISO, editId=null, forceMode=null, preserve=false){
         <div class="help">😴 Rest day — no running. Recovery, sleep and adaptation. This shows on the calendar as a scheduled day off.</div>
       </div>
       <div id="workoutSection" style="display:${TYPES[type].structured?'block':'none'}">
+        <div class="field"><label style="font-size:11px;color:var(--muted);font-weight:700">🔥 WARM-UP</label>
+          ${warmCoolFieldHTML('wu', draftWarmup, draftWarmup.mode)}
+        </div>
         <div id="setsBuilderWrap" style="display:${isPlan?'block':'none'}">
-          <div class="field"><label style="font-size:11px;color:var(--muted);font-weight:700">🔥 WARM-UP</label>
-            ${warmCoolFieldHTML('wu', draftWarmup, draftWarmup.mode)}
-          </div>
           <div class="field"><label>⚡ Main set</label>
             <div class="wb">
               <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:2px">
@@ -2030,13 +2032,9 @@ function openRunModal(dateISO, editId=null, forceMode=null, preserve=false){
               </div>
             </div>
           </div>
-          <div class="field"><label style="font-size:11px;color:var(--muted);font-weight:700">💧 COOL-DOWN</label>
-            ${warmCoolFieldHTML('cd', draftCooldown, draftCooldown.mode)}
-            <div class="help">Pick either a time or a distance for warm-up/cool-down — whichever you actually plan by.</div>
-          </div>
         </div>
         <div id="actualWorkoutWrap" style="display:${isPlan?'none':'block'}">
-          <div class="field"><label>Log your actual reps</label>
+          <div class="field"><label>⚡ Log your actual reps</label>
             <div class="aw-setup">
               <div class="field" style="margin:0"><label style="font-size:11px">Rep distance</label><input type="number" step="0.01" min="0" id="aw-dist" value="${actualWorkout.distance}" placeholder="800" oninput="setActualMeta()"></div>
               <div class="field" style="margin:0"><label style="font-size:11px">Unit</label>
@@ -2055,8 +2053,12 @@ function openRunModal(dateISO, editId=null, forceMode=null, preserve=false){
             </div>
             <div id="awRows" class="aw-reps"></div>
             <div id="awSummary"></div>
-            <div class="help" style="margin-top:10px">Total distance &amp; time above auto-fill from these reps (main set only, no rest after the last one) — nudge them manually to add warm-up/cool-down.</div>
+            <div class="help" style="margin-top:10px">Total distance &amp; time above auto-fill from these reps plus your warm-up/cool-down below.</div>
           </div>
+        </div>
+        <div class="field"><label style="font-size:11px;color:var(--muted);font-weight:700">💧 COOL-DOWN</label>
+          ${warmCoolFieldHTML('cd', draftCooldown, draftCooldown.mode)}
+          <div class="help">Pick either a time or a distance for warm-up/cool-down — whichever you actually track.</div>
         </div>
         <div id="paceHelperWrap">${paceHelperHTML(a)}</div>
       </div>
@@ -2202,9 +2204,13 @@ function recalcActualTotals(){
       <div>Avg rep pace<b>${avgPace?paceSecToStr(avgPace)+'/'+unitLabel():'—'}</b></div>
     </div>` : '';
   }
-  if(totalKm>0 && $('#f-dist')){
-    $('#f-dist').value=fmtDist(totalKm,2);
-    const h=Math.floor(totalSec/3600), m=Math.floor((totalSec%3600)/60), s=Math.round(totalSec%60);
+  // grand total (auto-fills Total distance/time above) includes warm-up + cool-down too —
+  // but only whichever mode (time or distance) is actually selected for each
+  const grandKm = totalKm + (draftWarmup.mode==='dist'?draftWarmup.dist||0:0) + (draftCooldown.mode==='dist'?draftCooldown.dist||0:0);
+  const grandSec = totalSec + (draftWarmup.mode==='time'?(draftWarmup.dur||0)*60:0) + (draftCooldown.mode==='time'?(draftCooldown.dur||0)*60:0);
+  if(grandKm>0 && $('#f-dist')){
+    $('#f-dist').value=fmtDist(grandKm,2);
+    const h=Math.floor(grandSec/3600), m=Math.floor((grandSec%3600)/60), s=Math.round(grandSec%60);
     if($('#f-dur-h')) $('#f-dur-h').value=h; if($('#f-dur-min')) $('#f-dur-min').value=m; if($('#f-dur-sec')) $('#f-dur-sec').value=s;
   }
 }
