@@ -642,7 +642,8 @@ function fmtDist(km, dp=1){ return toUnit(km).toFixed(dp); }
 function paceStr(km, min){
   if(!km || !min) return '—';
   const d = toUnit(km); if(d<=0) return '—';
-  const p = min/d, m = Math.floor(p), s = Math.round((p-m)*60);
+  const totalSec = Math.round((min/d)*60);   // round to whole seconds first so 59.7s can't render as ":60"
+  const m = Math.floor(totalSec/60), s = totalSec%60;
   return `${m}:${String(s).padStart(2,'0')}`;
 }
 function fmtDur(min){
@@ -688,7 +689,7 @@ function zonePace(vdot,z){ if(z.k==='mar'){ return predictTime(42195,vdot)/42.19
 // predict race time (sec) for a distance at a given VDOT — numeric solve, self-consistent with the model above
 function predictTime(distM,vdot){ let lo=1,hi=36000; for(let i=0;i<60;i++){ const mid=(lo+hi)/2; (vdotFrom(distM,mid)>vdot)?(lo=mid):(hi=mid); } return (lo+hi)/2; }
 // format seconds -> m:ss (for pace) always per current display unit
-function paceSecToStr(secPerKm){ if(!secPerKm||secPerKm<=0) return '—'; const per = state.unit==='mi' ? secPerKm*KM_PER_MI : secPerKm; const m=Math.floor(per/60),s=Math.round(per%60); return `${m}:${String(s).padStart(2,'0')}`; }
+function paceSecToStr(secPerKm){ if(!secPerKm||secPerKm<=0) return '—'; const per = Math.round(state.unit==='mi' ? secPerKm*KM_PER_MI : secPerKm); const m=Math.floor(per/60),s=per%60; return `${m}:${String(s).padStart(2,'0')}`; }
 // format seconds -> h:mm:ss or m:ss for race times
 function secToClock(sec){ sec=Math.round(sec); const h=Math.floor(sec/3600),m=Math.floor((sec%3600)/60),s=sec%60; return h>0?`${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`:`${m}:${String(s).padStart(2,'0')}`; }
 // split time for a rep of a given distance in metres, at a sec/km pace
