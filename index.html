@@ -310,7 +310,12 @@ body.light .modal-bg{background:rgba(30,40,60,.45)}
 .set-labels{display:grid;grid-template-columns:52px 1fr 1fr 1fr 30px;gap:8px;font-size:10.5px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;padding:0 2px}
 .add-set{font-size:12.5px;font-weight:700;color:var(--accent);padding:7px 0;margin-top:2px}
 .wu-cd{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
-.strides-box{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:12px 13px}
+.strides-box{display:block;background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:14px}
+.iu-group{display:flex;align-items:stretch;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--panel)}
+.iu-group input{border:none;border-radius:0;flex:1;min-width:0;background:transparent}
+.iu-group input:focus{outline:none;box-shadow:none}
+.iu-suffix{display:flex;align-items:center;padding:0 12px;color:var(--muted);font-size:12px;font-weight:800;background:var(--panel-2);border-left:1px solid var(--line);white-space:nowrap;flex:none}
+select.iu-select{border:none;border-radius:0;cursor:pointer;appearance:none;-webkit-appearance:none;padding-right:22px;background-image:url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath fill='%23888' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center}
 .strides-box select{background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:9px 10px;color:var(--text);font-weight:700;font-size:13px;outline:none}
 .strides-box input[type=number]{width:64px;background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:9px 10px;color:var(--text);outline:none}
 .strides-box input[type=text]{width:92px;background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:9px 10px;color:var(--text);outline:none}
@@ -690,35 +695,54 @@ function secToClock(sec){ sec=Math.round(sec); const h=Math.floor(sec/3600),m=Ma
 function splitFor(secPerKm,metres){ const sec=secPerKm*(metres/1000); return secToClock(sec); }
 // warm-up / cool-down input: a single Time-or-Distance choice instead of two ambiguous boxes
 function warmCoolFieldHTML(prefix, val, mode){
+  const distUnit = val.distUnit || 'km';
   return `<div style="display:flex;gap:8px;align-items:center">
     <select id="${prefix}-mode" onchange="toggleWuCdMode('${prefix}')" style="max-width:118px;flex:none">
       <option value="time" ${mode==='time'?'selected':''}>⏱ Time</option>
       <option value="dist" ${mode==='dist'?'selected':''}>📏 Distance</option>
     </select>
-    <input type="number" step="1" min="0" id="${prefix}-dur" value="${val.dur||''}" placeholder="minutes" oninput="syncWuCdField('${prefix}','dur')" style="display:${mode==='time'?'block':'none'};flex:1">
-    <input type="number" step="0.1" min="0" id="${prefix}-dist" value="${val.dist||''}" placeholder="km" oninput="syncWuCdField('${prefix}','dist')" style="display:${mode==='dist'?'block':'none'};flex:1">
+    <div class="iu-group" id="${prefix}-dur-wrap" style="display:${mode==='time'?'flex':'none'};flex:1">
+      <input type="number" step="1" min="0" id="${prefix}-dur" value="${val.dur||''}" placeholder="e.g. 10" oninput="syncWuCdField('${prefix}','dur')">
+      <span class="iu-suffix">min</span>
+    </div>
+    <div class="iu-group" id="${prefix}-dist-wrap" style="display:${mode==='dist'?'flex':'none'};flex:1">
+      <input type="number" step="0.1" min="0" id="${prefix}-dist" value="${val.dist||''}" placeholder="e.g. 1.5" oninput="syncWuCdField('${prefix}','dist')">
+      <select id="${prefix}-dist-unit" class="iu-suffix iu-select" onchange="syncWuCdField('${prefix}','distUnit')">
+        <option value="km" ${distUnit==='km'?'selected':''}>km</option>
+        <option value="mi" ${distUnit==='mi'?'selected':''}>mi</option>
+      </select>
+    </div>
   </div>`;
+}
+function toggleStridesDetail(){
+  const mode=$('#s-mode').value;
+  const row=$('#stridesDetailRow');
+  row.style.display = mode==='off' ? 'none' : 'flex';
 }
 function toggleWuCdMode(prefix){
   const mode=$('#'+prefix+'-mode').value;
   const target = prefix==='wu' ? draftWarmup : draftCooldown;
   target.mode = mode;
-  $('#'+prefix+'-dur').style.display = mode==='time'?'block':'none';
-  $('#'+prefix+'-dist').style.display = mode==='dist'?'block':'none';
+  $('#'+prefix+'-dur-wrap').style.display = mode==='time'?'flex':'none';
+  $('#'+prefix+'-dist-wrap').style.display = mode==='dist'?'flex':'none';
   recalcActualTotals();
 }
 function syncWuCdField(prefix, key){
   const target = prefix==='wu' ? draftWarmup : draftCooldown;
-  const el = $('#'+prefix+'-'+key);
-  target[key] = key==='dist' ? (parseFloat(el.value)||0) : (parseInt(el.value)||0);
+  if(key==='distUnit'){ target.distUnit = $('#'+prefix+'-dist-unit').value; }
+  else { const el = $('#'+prefix+'-'+key); target[key] = key==='dist' ? (parseFloat(el.value)||0) : (parseInt(el.value)||0); }
   recalcActualTotals();
 }
+// km-equivalent distance / minutes actually contributed by a warm-up or cool-down,
+// respecting both its mode (time vs distance) and its unit (km vs mi)
+function wuCdDistKm(obj){ if(!obj || obj.mode!=='dist') return 0; return obj.distUnit==='mi' ? (obj.dist||0)*KM_PER_MI : (obj.dist||0); }
+function wuCdDurMin(obj){ return (obj && obj.mode==='time') ? (obj.dur||0) : 0; }
 // consistent display for a warm-up/cool-down value wherever it's shown (run detail, etc.)
 function fmtWarmCool(w){
   if(!w) return '—';
   const hasDist=w.dist>0, hasDur=w.dur>0;
-  if(hasDist && hasDur) return `${w.dist} km · ${w.dur} min easy`;
-  if(hasDist) return `${w.dist} km easy`;
+  if(hasDist && hasDur) return `${fmtDist(w.dist)} ${unitLabel()} · ${w.dur} min easy`;
+  if(hasDist) return `${fmtDist(w.dist)} ${unitLabel()} easy`;
   if(hasDur) return `${w.dur} min easy`;
   return '—';
 }
@@ -1953,7 +1977,7 @@ function closeModal(){ $('#modalBg').classList.remove('open'); }
 $('#modalBg').addEventListener('click',e=>{ if(e.target.id==='modalBg') closeModal(); });
 
 let draftSets=[]; let draftMode='done'; let draftType='easy';
-let draftWarmup={mode:'time',dist:0,dur:10}, draftCooldown={mode:'time',dist:0,dur:8};
+let draftWarmup={mode:'time',dist:0,dur:10,distUnit:'km'}, draftCooldown={mode:'time',dist:0,dur:8,distUnit:'km'};
 let actualWorkout={distance:400,unit:'m',restSec:90,times:[0,0,0,0,0,0]};   // actual logged interval/tempo/fartlek reps
 let runModalCtx=null;   // {dateISO, editId, forceMode} — lets "back to workout" from the pace calculator restore this session
 function openRunModal(dateISO, editId=null, forceMode=null, preserve=false){
@@ -1974,8 +1998,8 @@ function openRunModal(dateISO, editId=null, forceMode=null, preserve=false){
   if(!preserve){
     const wu0 = r&&r.workout ? r.workout.warmup : {dist:0,dur:10};
     const cd0 = r&&r.workout ? r.workout.cooldown : {dist:0,dur:8};
-    draftWarmup = {mode: wu0.dist>0?'dist':'time', dist:wu0.dist||0, dur:wu0.dur||0};
-    draftCooldown = {mode: cd0.dist>0?'dist':'time', dist:cd0.dist||0, dur:cd0.dur||0};
+    draftWarmup = {mode: wu0.dist>0?'dist':'time', dist:wu0.dist||0, dur:wu0.dur||0, distUnit:'km'};
+    draftCooldown = {mode: cd0.dist>0?'dist':'time', dist:cd0.dist||0, dur:cd0.dur||0, distUnit:'km'};
   }
   const isPlan = draftMode==='planned';
   // split stored decimal minutes into h + mm + ss for the duration inputs
@@ -2063,17 +2087,20 @@ function openRunModal(dateISO, editId=null, forceMode=null, preserve=false){
         <div id="paceHelperWrap">${paceHelperHTML(a)}</div>
       </div>
       <div id="stridesSection" style="display:${TYPES[type].isRest?'none':'block'}">
-        <div class="field"><label>Strides / hill sprints (optional)</label>
+        <div class="field"><label>Strides / hill sprints <span style="font-weight:400;color:var(--muted);text-transform:none;letter-spacing:0">(optional)</span></label>
           <div class="strides-box">
-            <select id="s-mode">
-              <option value="off" ${!r||!r.strides?'selected':''}>None</option>
-              <option value="strides" ${r&&r.strides&&r.strides.mode==='strides'?'selected':''}>🏃💨 Strides</option>
-              <option value="hills" ${r&&r.strides&&r.strides.mode==='hills'?'selected':''}>⛰️ Hill sprints</option>
-            </select>
-            <input type="number" id="s-count" value="${r&&r.strides?r.strides.count:6}" min="1" max="20" placeholder="6">
-            <span style="color:var(--muted);font-weight:700">×</span>
-            <input type="text" id="s-length" value="${r&&r.strides?r.strides.length:'100m'}" placeholder="100m / 10s">
-            <span style="color:var(--muted);font-size:12.5px;white-space:nowrap">after the run</span>
+            <div class="field" style="margin:0"><label style="font-size:11px">Type</label>
+              <select id="s-mode" onchange="toggleStridesDetail()">
+                <option value="off" ${!r||!r.strides?'selected':''}>None</option>
+                <option value="strides" ${r&&r.strides&&r.strides.mode==='strides'?'selected':''}>🏃💨 Strides</option>
+                <option value="hills" ${r&&r.strides&&r.strides.mode==='hills'?'selected':''}>⛰️ Hill sprints</option>
+              </select>
+            </div>
+            <div id="stridesDetailRow" style="display:${r&&r.strides?'flex':'none'};gap:12px;align-items:end;margin-top:12px">
+              <div class="field" style="margin:0;max-width:100px"><label style="font-size:11px">Reps</label><input type="number" id="s-count" value="${r&&r.strides?r.strides.count:6}" min="1" max="20" placeholder="6"></div>
+              <div class="field" style="margin:0;flex:1"><label style="font-size:11px">Distance / duration each</label><input type="text" id="s-length" value="${r&&r.strides?r.strides.length:'100m'}" placeholder="e.g. 100m or 10s"></div>
+            </div>
+            <div class="help" style="margin:${r&&r.strides?'10px':'0'} 0 0">Done after the main run, once you've cooled down enough to run fast safely.</div>
           </div>
           <div class="help">Short accelerations after an easy or long run to build speed &amp; strength — e.g. 6×100m strides or 8×10s hill sprints.</div>
         </div>
@@ -2206,8 +2233,8 @@ function recalcActualTotals(){
   }
   // grand total (auto-fills Total distance/time above) includes warm-up + cool-down too —
   // but only whichever mode (time or distance) is actually selected for each
-  const grandKm = totalKm + (draftWarmup.mode==='dist'?draftWarmup.dist||0:0) + (draftCooldown.mode==='dist'?draftCooldown.dist||0:0);
-  const grandSec = totalSec + (draftWarmup.mode==='time'?(draftWarmup.dur||0)*60:0) + (draftCooldown.mode==='time'?(draftCooldown.dur||0)*60:0);
+  const grandKm = totalKm + wuCdDistKm(draftWarmup) + wuCdDistKm(draftCooldown);
+  const grandSec = totalSec + wuCdDurMin(draftWarmup)*60 + wuCdDurMin(draftCooldown)*60;
   if(grandKm>0 && $('#f-dist')){
     $('#f-dist').value=fmtDist(grandKm,2);
     const h=Math.floor(grandSec/3600), m=Math.floor((grandSec%3600)/60), s=Math.round(grandSec%60);
@@ -2234,8 +2261,8 @@ function saveRun(editId){
   const hideMetrics = planned && TYPES[type].structured;
   let wuF={dist:0,dur:0}, cdF={dist:0,dur:0};
   if(TYPES[type].structured){
-    wuF = draftWarmup.mode==='dist' ? {dist:draftWarmup.dist||0, dur:0} : {dist:0, dur:draftWarmup.dur||0};
-    cdF = draftCooldown.mode==='dist' ? {dist:draftCooldown.dist||0, dur:0} : {dist:0, dur:draftCooldown.dur||0};
+    wuF = {dist: wuCdDistKm(draftWarmup), dur: wuCdDurMin(draftWarmup)};
+    cdF = {dist: wuCdDistKm(draftCooldown), dur: wuCdDurMin(draftCooldown)};
   }
   let dist, dur;
   if(hideMetrics){
