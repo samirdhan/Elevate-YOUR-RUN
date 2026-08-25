@@ -312,10 +312,10 @@ body.light .modal-bg{background:rgba(30,40,60,.45)}
 .wu-cd{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
 .strides-box{display:block;background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:14px}
 .iu-group{display:flex;align-items:stretch;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--panel)}
-.iu-group input{border:none;border-radius:0;flex:1;min-width:0;background:transparent}
+.iu-group input{border:none;border-radius:0;flex:1 1 0;min-width:0;width:auto;background:transparent}
 .iu-group input:focus{outline:none;box-shadow:none}
-.iu-suffix{display:flex;align-items:center;padding:0 12px;color:var(--muted);font-size:12px;font-weight:800;background:var(--panel-2);border-left:1px solid var(--line);white-space:nowrap;flex:none}
-select.iu-select{border:none;border-radius:0;cursor:pointer;appearance:none;-webkit-appearance:none;padding-right:22px;background-image:url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath fill='%23888' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center}
+.iu-suffix{display:flex;align-items:center;padding:0 12px;color:var(--muted);font-size:12px;font-weight:800;background:var(--panel-2);border-left:1px solid var(--line);white-space:nowrap;flex:none;width:auto}
+.iu-group select.iu-select{border:none;border-radius:0;cursor:pointer;appearance:none;-webkit-appearance:none;width:64px!important;flex:0 0 64px;padding:0 24px 0 12px;background-image:url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath fill='%23888' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center}
 .strides-box select{background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:9px 10px;color:var(--text);font-weight:700;font-size:13px;outline:none}
 .strides-box input[type=number]{width:64px;background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:9px 10px;color:var(--text);outline:none}
 .strides-box input[type=text]{width:92px;background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:9px 10px;color:var(--text);outline:none}
@@ -696,16 +696,19 @@ function splitFor(secPerKm,metres){ const sec=secPerKm*(metres/1000); return sec
 // warm-up / cool-down input: a single Time-or-Distance choice instead of two ambiguous boxes
 function warmCoolFieldHTML(prefix, val, mode){
   const distUnit = val.distUnit || 'km';
-  return `<div style="display:flex;gap:8px;align-items:center">
-    <select id="${prefix}-mode" onchange="toggleWuCdMode('${prefix}')" style="max-width:118px;flex:none">
+  const durM = Math.floor(val.dur||0), durS = Math.round(((val.dur||0)%1)*60);
+  return `<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+    <select id="${prefix}-mode" onchange="toggleWuCdMode('${prefix}')" style="width:140px;flex:none">
       <option value="time" ${mode==='time'?'selected':''}>⏱ Time</option>
       <option value="dist" ${mode==='dist'?'selected':''}>📏 Distance</option>
     </select>
-    <div class="iu-group" id="${prefix}-dur-wrap" style="display:${mode==='time'?'flex':'none'};flex:1">
-      <input type="number" step="1" min="0" id="${prefix}-dur" value="${val.dur||''}" placeholder="e.g. 10" oninput="syncWuCdField('${prefix}','dur')">
+    <div class="iu-group" id="${prefix}-dur-wrap" style="display:${mode==='time'?'flex':'none'};flex:1;min-width:150px">
+      <input type="number" step="1" min="0" id="${prefix}-dur-m" value="${durM||''}" placeholder="mm" oninput="syncWuCdField('${prefix}','dur')">
+      <span class="iu-suffix" style="border-left:none;padding:0 2px;background:transparent">:</span>
+      <input type="number" step="1" min="0" max="59" id="${prefix}-dur-s" value="${durS||''}" placeholder="ss" oninput="syncWuCdField('${prefix}','dur')">
       <span class="iu-suffix">min</span>
     </div>
-    <div class="iu-group" id="${prefix}-dist-wrap" style="display:${mode==='dist'?'flex':'none'};flex:1">
+    <div class="iu-group" id="${prefix}-dist-wrap" style="display:${mode==='dist'?'flex':'none'};flex:1;min-width:150px">
       <input type="number" step="0.1" min="0" id="${prefix}-dist" value="${val.dist||''}" placeholder="e.g. 1.5" oninput="syncWuCdField('${prefix}','dist')">
       <select id="${prefix}-dist-unit" class="iu-suffix iu-select" onchange="syncWuCdField('${prefix}','distUnit')">
         <option value="km" ${distUnit==='km'?'selected':''}>km</option>
@@ -730,7 +733,12 @@ function toggleWuCdMode(prefix){
 function syncWuCdField(prefix, key){
   const target = prefix==='wu' ? draftWarmup : draftCooldown;
   if(key==='distUnit'){ target.distUnit = $('#'+prefix+'-dist-unit').value; }
-  else { const el = $('#'+prefix+'-'+key); target[key] = key==='dist' ? (parseFloat(el.value)||0) : (parseInt(el.value)||0); }
+  else if(key==='dur'){
+    const m=parseInt($('#'+prefix+'-dur-m').value)||0;
+    const s=Math.max(0,Math.min(59,parseInt($('#'+prefix+'-dur-s').value)||0));
+    target.dur = m + s/60;
+  }
+  else { const el = $('#'+prefix+'-'+key); target[key] = parseFloat(el.value)||0; }
   recalcActualTotals();
 }
 // km-equivalent distance / minutes actually contributed by a warm-up or cool-down,
