@@ -86,7 +86,7 @@ a{color:inherit}
 .topbar .title small{display:block;font-size:12px;color:var(--muted);font-weight:500;letter-spacing:0}
 .athlete-select{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:6px 8px 6px 12px}
 .athlete-select .av{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;font-weight:800;color:#fff;font-size:14px}
-.athlete-select select{background:transparent;border:none;color:var(--text);font-weight:700;font-size:14px;outline:none;padding-right:4px;cursor:pointer}
+.athlete-select select{background-color:transparent;border:none;color:var(--text);font-weight:700;font-size:14px;outline:none;cursor:pointer}
 .athlete-select select option{background:var(--panel);color:var(--text)}
 .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border-radius:11px;font-weight:700;font-size:13.5px;transition:.15s}
 .btn-primary{background:linear-gradient(135deg,var(--accent),#ff8a5c);color:#fff;box-shadow:0 6px 16px rgba(255,107,53,.3)}
@@ -221,18 +221,44 @@ a{color:inherit}
 .trend-badge.up{color:var(--easy)}
 .trend-badge.down{color:var(--interval)}
 /* actual interval/tempo/fartlek logging */
-.aw-setup{display:grid;grid-template-columns:1fr .6fr .85fr 1.3fr;gap:10px;align-items:end}
-.aw-reps{display:flex;flex-direction:column;gap:7px;margin-top:14px}
-.aw-row{display:grid;grid-template-columns:32px 1fr 1fr;gap:10px;align-items:center;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
-.aw-row .awn{font-weight:800;color:var(--muted);font-size:12.5px;text-align:center}
-.aw-row .awt{display:flex;align-items:center;gap:5px}
-.aw-row .awt input{width:100%;min-width:0;text-align:center}
-.aw-row .awp{font-weight:800;font-variant-numeric:tabular-nums;font-size:13px;white-space:nowrap;text-align:right}
+.aw-setup{display:grid;grid-template-columns:1.2fr .8fr 1fr 1.5fr;gap:14px;align-items:end}
+.aw-reps{display:flex;flex-direction:column;gap:8px;margin-top:16px}
+.aw-row{display:grid;grid-template-columns:34px 1fr 1fr;gap:12px;align-items:center;background:var(--panel-2);border:1px solid var(--line);border-radius:11px;padding:11px 14px}
+.aw-row .awn{font-weight:800;color:var(--muted);font-size:13px;text-align:center}
+/* time entry as a clean bordered box — shared by uniform & ladder rows */
+.aw-row .awt{display:flex;align-items:center;gap:5px;height:40px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:0 10px;transition:.15s}
+.aw-row .awt:focus-within{border-color:var(--accent)}
+.aw-row .awt input{width:100%;min-width:0;text-align:center;background:transparent;border:none;padding:0;font-size:14px;font-weight:700;color:var(--text)}
+.aw-row .awt input:focus{outline:none}
+.aw-row .awp{font-weight:800;font-variant-numeric:tabular-nums;font-size:14px;white-space:nowrap;text-align:right}
 .aw-row .awp small{color:var(--muted);font-weight:600}
+@media(max-width:760px){.aw-setup{grid-template-columns:1fr 1fr;gap:12px}.aw-setup>div:last-child{grid-column:1/-1}}
+.aw-mode{display:flex;gap:8px;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:4px;margin-bottom:14px}
+.aw-mode button{flex:1;padding:8px;border-radius:7px;font-size:12.5px;font-weight:700;color:var(--muted);transition:.15s}
+.aw-mode button.sel{background:var(--accent);color:#fff}
+/* mixed/ladder rep rows — roomy, every number visible */
+.aw-head{display:grid;grid-template-columns:30px minmax(122px,1.5fr) minmax(96px,1.15fr) minmax(96px,1.15fr) 66px 26px;gap:12px;font-size:9.5px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;padding:0 14px 2px}
+.aw-head span{text-align:center}
+.aw-head span:first-child,.aw-head span:nth-child(2){text-align:left}
+.aw-head span:nth-child(5){text-align:right}
+.aw-row.varied{grid-template-columns:30px minmax(122px,1.5fr) minmax(96px,1.15fr) minmax(96px,1.15fr) 66px 26px;gap:12px;padding:12px 14px;align-items:center}
+.aw-row.varied .awn{align-self:center}
+.aw-row.varied .iu-group{height:40px}
+.aw-row.varied .iu-group input{padding:9px 6px;font-size:14px;font-weight:700}
+.aw-row.varied .awt{padding:0 8px}
+.aw-row.varied .awp{align-self:center;font-size:13.5px}
+.aw-row.varied .awp small{color:var(--muted);font-weight:600;display:block;font-size:9.5px}
+.aw-row.varied .x{color:var(--muted);text-align:center;font-size:18px;border-radius:8px;align-self:center;height:34px;line-height:34px}
+.aw-row.varied .x:hover{color:var(--interval);background:var(--panel)}
+@media(max-width:640px){
+  .aw-row.varied{grid-template-columns:26px 1.4fr 1fr 1fr;gap:8px}
+  .aw-row.varied .awp{grid-column:2/-1;text-align:left;flex-direction:row;gap:6px}
+  .aw-row.varied .awp small{display:inline}
+  .aw-row.varied .x{grid-row:1;grid-column:4;justify-self:end}
+}
 .aw-summary{display:flex;gap:18px;flex-wrap:wrap;margin-top:14px;padding:12px 14px;background:var(--panel-2);border:1px solid var(--line);border-radius:11px}
 .aw-summary div{font-size:12px;color:var(--muted)}
 .aw-summary b{display:block;font-size:15px;color:var(--text);font-variant-numeric:tabular-nums;margin-top:2px}
-@media(max-width:760px){.aw-setup{grid-template-columns:1fr 1fr}.aw-setup > div:last-child{grid-column:1/-1}}
 .cal-cell.race-day{border-color:var(--race);border-width:2px}
 .cal-cell .rest{position:absolute;bottom:7px;right:9px;font-size:10px;color:var(--muted)}
 
@@ -281,6 +307,17 @@ body.light .modal-bg{background:rgba(30,40,60,.45)}
 .field input,.field select,.field textarea{width:100%;background:var(--panel-2);border:1px solid var(--line);border-radius:11px;padding:11px 13px;color:var(--text);outline:none;transition:.15s}
 .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent)}
 .field textarea{resize:vertical;min-height:70px}
+/* unified custom dropdown chevron across ALL selects — crisp, consistent, never balloons */
+.field select,.strides-box select,.pat-day select,.athlete-select select{
+  appearance:none;-webkit-appearance:none;-moz-appearance:none;cursor:pointer;
+  background-image:url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath fill='%239aa4b5' d='M1 1.5l5 5 5-5'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-size:10px 7px;background-position:right 13px center;
+}
+.field select{padding-right:34px}
+.field select::-ms-expand{display:none}
+.strides-box select{padding-right:30px;background-position:right 11px center}
+.pat-day select{text-align:left;text-align-last:left;padding-right:20px;background-position:right 6px center;background-size:9px 6px}
+.athlete-select select{padding-right:20px;background-position:right 2px center;background-size:9px 6px}
 .field-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .field-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
 .type-picker{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
@@ -297,26 +334,50 @@ body.light .modal-bg{background:rgba(30,40,60,.45)}
 .race-row input{padding:9px 11px;font-size:13px}
 .race-row .x{color:var(--muted);text-align:center;font-size:16px;border-radius:7px;height:100%}
 .race-row .x:hover{color:var(--interval)}
+/* onboarding */
+.onb-section{margin-bottom:22px}
+.onb-legend{display:block;font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:11px}
+.onb-legend .lite{text-transform:none;letter-spacing:0;font-weight:600;color:var(--muted)}
+.pb-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px 14px}
+.pb-time{display:flex;align-items:center;gap:5px}
+.pb-time input{width:100%;min-width:0;text-align:center;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;padding:10px 4px;color:var(--text);outline:none}
+.pb-time input:focus{border-color:var(--accent)}
+.pb-time span{color:var(--muted);font-weight:800;font-size:13px}
+.pb-row-label{display:flex;align-items:center;gap:7px;font-weight:700;font-size:12.5px;margin-bottom:6px}
+.pb-row-label .pbd{width:9px;height:9px;border-radius:3px;background:var(--race)}
+.onb-vdot-wrap{margin-top:4px}
+@media(max-width:640px){.pb-grid{grid-template-columns:1fr}}
 
 /* workout builder */
-.wb{background:var(--panel-2);border:1px dashed var(--line);border-radius:14px;padding:16px;margin-top:6px}
+.wb{background:var(--panel-2);border:1px dashed var(--line);border-radius:14px;padding:18px;margin-top:6px}
 .wb-title{font-size:13px;font-weight:800;margin-bottom:12px;display:flex;align-items:center;gap:8px}
-.set-row{display:grid;grid-template-columns:52px 1fr 1fr 1fr 30px;gap:8px;align-items:center;margin-bottom:8px}
-.set-row input{padding:8px 9px;font-size:13px}
-.set-row .x{color:var(--muted);text-align:center;font-size:15px;border-radius:7px}
-.set-row .x:hover{color:var(--interval)}
-.set-labels{display:grid;grid-template-columns:52px 1fr 1fr 1fr 30px;gap:8px;font-size:10.5px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;padding:0 2px}
+.set-row{display:grid;grid-template-columns:60px 1fr 1fr 1fr 26px;gap:12px;align-items:center;margin-bottom:9px}
+.set-row input{height:40px;padding:0 12px;font-size:14px;font-weight:700;background:var(--panel);border:1px solid var(--line);border-radius:10px;color:var(--text);outline:none;transition:.15s;min-width:0}
+.set-row input:focus{border-color:var(--accent)}
+.set-row input::placeholder{font-weight:600;color:var(--muted)}
+.set-row .x{color:var(--muted);text-align:center;font-size:18px;border-radius:8px;height:34px;line-height:34px}
+.set-row .x:hover{color:var(--interval);background:var(--panel)}
+.set-labels{display:grid;grid-template-columns:60px 1fr 1fr 1fr 26px;gap:12px;font-size:9.5px;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;padding:0 12px}
 .add-set{font-size:12.5px;font-weight:700;color:var(--accent);padding:7px 0;margin-top:2px}
+@media(max-width:640px){.set-row,.set-labels{grid-template-columns:48px 1fr 1fr 1fr 24px;gap:8px}.set-row input{padding:0 8px}}
 .wu-cd{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
-.strides-box{display:block;background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:14px}
+.strides-box{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:14px}
+.strides-box .sb-row{display:flex;gap:12px;align-items:end;flex-wrap:wrap}
+.strides-box .sb-field{display:flex;flex-direction:column;gap:6px;min-width:0}
+.strides-box .sb-field .sbl{font-size:10px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;padding-left:2px}
+.strides-box .sb-type{flex:1 1 200px}
+.strides-box .sb-count{flex:0 0 88px}
+.strides-box .sb-length{flex:1 1 160px}
+.strides-box select,.strides-box input{height:42px}
+.strides-box .sb-count input,.strides-box .sb-length input{width:100%}
 .iu-group{display:flex;align-items:stretch;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--panel)}
 .iu-group input{border:none;border-radius:0;flex:1 1 0;min-width:0;width:auto;background:transparent;padding:11px 6px;text-align:center}
 .iu-group input:focus{outline:none;box-shadow:none}
 .iu-suffix{display:flex;align-items:center;padding:0 12px;color:var(--muted);font-size:12px;font-weight:800;background:var(--panel-2);border-left:1px solid var(--line);white-space:nowrap;flex:none;width:auto}
-.iu-group select.iu-select{border:none;border-radius:0;cursor:pointer;appearance:none;-webkit-appearance:none;width:64px!important;flex:0 0 64px;padding:0 24px 0 12px;background-image:url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath fill='%23888' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center}
-.strides-box select{background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:9px 10px;color:var(--text);font-weight:700;font-size:13px;outline:none}
-.strides-box input[type=number]{width:64px;background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:9px 10px;color:var(--text);outline:none}
-.strides-box input[type=text]{width:92px;background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:9px 10px;color:var(--text);outline:none}
+.iu-group select.iu-select{border:none;border-radius:0;cursor:pointer;appearance:none;-webkit-appearance:none;width:58px!important;flex:0 0 58px;padding:0 20px 0 10px;font-weight:800;background-image:url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath fill='%23888' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-size:9px 6px;background-position:right 8px center}
+.strides-box select{width:100%;background-color:var(--panel);border:1px solid var(--line);border-radius:10px;padding:0 32px 0 12px;color:var(--text);font-weight:700;font-size:14px;outline:none}
+.strides-box input{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:0 12px;color:var(--text);font-weight:700;font-size:14px;outline:none}
+.strides-box input::placeholder{font-weight:600;color:var(--muted)}
 .strides-box select:focus,.strides-box input:focus{border-color:var(--accent)}
 
 /* detail workout render */
@@ -365,7 +426,7 @@ body.light .modal-bg{background:rgba(30,40,60,.45)}
 .pattern-editor{display:grid;grid-template-columns:repeat(7,minmax(92px,1fr));gap:8px;overflow-x:auto;padding-bottom:4px}
 .pat-day{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:10px 8px;display:flex;flex-direction:column;gap:8px}
 .pat-day .dow{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;text-align:center}
-.pat-day select{width:100%;background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:9px 4px;color:var(--text);font-size:11.5px;font-weight:700;outline:none;text-align:center;text-align-last:center}
+.pat-day select{width:100%;background-color:var(--panel);border:1px solid var(--line);border-radius:9px;padding:9px 18px 9px 8px;color:var(--text);font-size:11.5px;font-weight:700;outline:none}
 .pat-day select:focus{border-color:var(--accent)}
 /* the block grid — square, aligned, no cramped scroll */
 .bgrid{border:1px solid var(--line);border-radius:14px;overflow:hidden}
@@ -582,6 +643,16 @@ function migrate(){
     if(!Array.isArray(a.benchmarkHistory)){
       a.benchmarkHistory = a.benchmark ? [{id:uid(), distKey:a.benchmark.distKey, timeSec:a.benchmark.timeSec, date:todayISO()}] : [];
     }
+    // onboarding profile fields (added later) — default so older athletes stay valid
+    if(!a.personalBests || typeof a.personalBests!=='object') a.personalBests={};
+    if(a.dob===undefined) a.dob='';
+    if(a.sex===undefined) a.sex='';
+    if(a.goal===undefined) a.goal='';
+    if(a.daysPerWeek===undefined) a.daysPerWeek='';
+    if(a.healthNotes===undefined) a.healthNotes='';
+    if(a.email===undefined) a.email='';
+    // if a benchmark is missing but PBs exist, derive one so pace tools work immediately
+    if(!a.benchmark){ const bp=bestPB(a.personalBests); if(bp){ a.benchmark={distKey:bp.distKey,timeSec:bp.timeSec}; if(!a.benchmarkHistory.length) a.benchmarkHistory=[{id:uid(),distKey:bp.distKey,timeSec:bp.timeSec,date:todayISO()}]; } }
     syncPrimaryRace(a);
   });
 }
@@ -596,6 +667,13 @@ function syncPrimaryRace(a){
   a.goalRace=pick.name; a.raceDate=pick.date;
 }
 function upcomingRaces(a){ const t=todayISO(); return (a.races||[]).filter(r=>r.date>=t).sort((x,y)=>x.date.localeCompare(y.date)); }
+// compute current age from a stored date-of-birth (ISO); null if unknown/invalid
+function ageFromDob(dob){ if(!dob) return null; const d=parseISO(dob); if(isNaN(d)) return null; const t=new Date(); let age=t.getFullYear()-d.getFullYear(); const mo=t.getMonth()-d.getMonth(); if(mo<0||(mo===0&&t.getDate()<d.getDate())) age--; return (age>=0&&age<130)?age:null; }
+// from a {distKey:timeSec} personal-bests map, return the single result with the highest VDOT
+// (best indicator of current fitness) as {distKey,timeSec,vdot}, or null if none entered
+function bestPB(pbs){ if(!pbs) return null; let best=null,bv=-1; Object.keys(pbs).forEach(k=>{ const d=RACE_DISTS.find(x=>x.k===k); const t=pbs[k]; if(!d||!t) return; const v=vdotFrom(d.m,t); if(v>bv){ bv=v; best={distKey:k,timeSec:t,vdot:v}; } }); return best; }
+// the four standard distances collected during onboarding
+const PB_DISTS=[{k:'5k',label:'5 K'},{k:'10k',label:'10 K'},{k:'half',label:'Half Marathon'},{k:'mar',label:'Marathon'}];
 
 /* ---------- Backup: export / import ---------- */
 function exportData(){
@@ -718,9 +796,11 @@ function warmCoolFieldHTML(prefix, val, mode){
   </div>`;
 }
 function toggleStridesDetail(){
-  const mode=$('#s-mode').value;
-  const row=$('#stridesDetailRow');
-  row.style.display = mode==='off' ? 'none' : 'flex';
+  const on = $('#s-mode').value!=='off';
+  const cw=$('#stridesCountWrap'), lw=$('#stridesLengthWrap'), h=$('#stridesActiveHelp');
+  if(cw) cw.style.display = on?'flex':'none';
+  if(lw) lw.style.display = on?'flex':'none';
+  if(h){ h.style.display = on?'block':'none'; h.style.margin = on?'12px 0 0':'0'; }
 }
 function toggleWuCdMode(prefix){
   const mode=$('#'+prefix+'-mode').value;
@@ -957,22 +1037,32 @@ function mondayOffset(daysBack){
 function dayFrom(iso,n){ return addDays(iso,n); }
 
 function seed(){
-  const mk = (name, level, races, target) => {
-    const a = { id: uid(), name, level, weeklyTarget: target, runs: [], races };
+  const mk = (name, level, races, target, profile) => {
+    const a = { id: uid(), name, level, weeklyTarget: target, runs: [], races,
+      dob: profile.dob||'', sex: profile.sex||'', goal: profile.goal||'',
+      daysPerWeek: profile.daysPerWeek||'', healthNotes: profile.healthNotes||'', email: profile.email||'',
+      personalBests: profile.pbs||{}, benchmark:null, benchmarkHistory:[] };
+    // derive the fitness benchmark from the best PB so pace tools work out of the box
+    const bp=bestPB(a.personalBests);
+    if(bp){ a.benchmark={distKey:bp.distKey,timeSec:bp.timeSec}; a.benchmarkHistory=[{id:uid(),distKey:bp.distKey,timeSec:bp.timeSec,date:addDays(todayISO(),-14)}]; }
     syncPrimaryRace(a);
     return a;
   };
+  const yearsAgo = n => addDays(todayISO(), -Math.round(n*365.25));
   const a1 = mk('Jordan Reyes','beginner',[
     {id:uid(), name:'First 5K', date:addDays(todayISO(),46)}
-  ], 20);
+  ], 20, {dob:yearsAgo(34), sex:'M', daysPerWeek:3, goal:'Finish a 5K without walking, then chase sub-30.',
+    healthNotes:'Mild left-knee niggle after 5 km — monitor.', email:'jordan@example.com', pbs:{'5k':1800}});
   const a2 = mk('Priya Anand','intermediate',[
     {id:uid(), name:'Tune-up 10K', date:addDays(todayISO(),30)},
     {id:uid(), name:'Half Marathon', date:addDays(todayISO(),72)}
-  ], 55);
+  ], 55, {dob:yearsAgo(29), sex:'F', daysPerWeek:5, goal:'Break 1:45 at the half marathon.',
+    healthNotes:'No current injuries. Prone to tight calves — rolls daily.', email:'priya@example.com', pbs:{'5k':1380,'10k':2880,'half':6600}});
   const a3 = mk('Marcus Webb','elite',[
     {id:uid(), name:'Tune-up Half', date:addDays(todayISO(),55)},
     {id:uid(), name:'Marathon PB', date:addDays(todayISO(),110)}
-  ], 110);
+  ], 110, {dob:yearsAgo(26), sex:'M', daysPerWeek:6, goal:'Sub-2:30 marathon and a spring PB block.',
+    healthNotes:'Healthy. Iron levels checked quarterly.', email:'marcus@example.com', pbs:{'5k':900,'10k':1920,'half':4260,'mar':9300}});
   seedRuns(a1,'beginner'); seedRuns(a2,'intermediate'); seedRuns(a3,'elite');
   seedPlan(a1,'beginner'); seedPlan(a2,'intermediate'); seedPlan(a3,'elite');
   state.athletes=[a1,a2,a3];
@@ -1219,7 +1309,7 @@ function runItemHTML(r,opts={}){
   const strideTxt = r.strides ? ` · +${r.strides.count}×${r.strides.length} ${r.strides.mode==='hills'?'hill sprints':'strides'}` : '';
   let sub;
   if(isRest){ sub=esc((planned?r.coachNote:r.notes)) || 'Day off — recovery &amp; adaptation'; }
-  else if(r.workout){ sub=`Workout: ${r.workout.sets.map(x=>`${x.reps}×${esc(x.effort)}${x.target?' @'+esc(x.target):''}`).join(' + ')}${esc(strideTxt)}`; }
+  else if(r.workout){ sub=`Workout: ${r.workout.sets.map(x=>`${x.varied?'':x.reps+'×'}${esc(x.effort)}${x.target?' @'+esc(x.target):''}`).join(' + ')}${esc(strideTxt)}`; }
   else { sub=esc((planned?r.coachNote:r.notes) || t.label)+esc(strideTxt); }
   const tag = planned ? `<span class="tag tag-planned">Planned</span>` : (opts.showDone?`<span class="tag tag-done">Done</span>`:'');
   const metrics = isRest
@@ -1864,13 +1954,17 @@ function renderAthletes(){
     if(a.raceDate){ const days=Math.ceil((parseISO(a.raceDate)-new Date())/86400000);
       const more=upcomingRaces(a).length-1;
       daysHtml=`<div class="goal-row">🏁 <span>${esc(a.goalRace)}</span> · <b>${days>=0?days+' days':'done'}</b>${more>0?` <span style="color:var(--muted)">+${more} more</span>`:''}</div>`; }
+    const age=ageFromDob(a.dob);
+    const bp=bestPB(a.personalBests);
+    const bpHtml = bp ? `<div class="goal-row">⏱️ <span>${RACE_DISTS.find(x=>x.k===bp.distKey).label} PB ${secToClock(bp.timeSec)}</span> · <b>VDOT ${bp.vdot.toFixed(0)}</b></div>` : '';
+    const goalHtml = a.goal ? `<div class="goal-row">🎯 <span style="white-space:normal">${esc(a.goal)}</span></div>` : '';
     return `<div class="ath-card">
       <div class="top" data-ath="${a.id}">
         <div class="av" style="background:${avatarColor(a.id)}">${esc(initials(a.name))}</div>
-        <div style="flex:1"><div class="nm">${esc(a.name)}</div><div class="lv"><span class="lvl-badge lvl-${a.level}">${a.level}</span></div></div>
+        <div style="flex:1"><div class="nm">${esc(a.name)}</div><div class="lv"><span class="lvl-badge lvl-${a.level}">${a.level}</span>${age!=null?` · ${age} yrs`:''}${a.daysPerWeek?` · ${a.daysPerWeek} days/wk`:''}</div></div>
         <button class="run-del" onclick="event.stopPropagation();editAthlete('${a.id}')" title="Edit">✏️</button>
       </div>
-      ${daysHtml}
+      ${daysHtml}${bpHtml}${goalHtml}
       <div class="ath-stats">
         <div><div class="n">${fmtDist(sumDist(cur))}<span style="font-size:11px;color:var(--muted)"> ${unitLabel()}</span></div><div class="l">this week</div></div>
         <div><div class="n">${fmtDist(yr,0)}</div><div class="l">this year</div></div>
@@ -1989,7 +2083,32 @@ $('#modalBg').addEventListener('click',e=>{ if(e.target.id==='modalBg') closeMod
 
 let draftSets=[]; let draftMode='done'; let draftType='easy';
 let draftWarmup={mode:'time',dist:0,dur:10,distUnit:'km'}, draftCooldown={mode:'time',dist:0,dur:8,distUnit:'km'};
-let actualWorkout={distance:400,unit:'m',restSec:90,times:[0,0,0,0,0,0]};   // actual logged interval/tempo/fartlek reps
+// actual logged interval/tempo/fartlek reps. Canonical shape supports BOTH a uniform
+// session (same distance every rep, e.g. 10×800m) AND a mixed/ladder session where each
+// rep has its own distance & rest (e.g. mile, 1km, mile, 1km  or  2km, mile, 1200, 1000):
+//   {varied, distance, unit, restSec, reps:[{dist,unit,timeSec,restSec}]}
+let actualWorkout=normalizeActual(null);
+// migrate any stored/legacy actual object into the canonical per-rep shape above.
+// legacy format was {distance,unit,restSec,times:[sec,...]} (one shared distance for all reps)
+function normalizeActual(aw){
+  const DEF_N=6;
+  if(!aw){
+    const reps=[]; for(let i=0;i<DEF_N;i++) reps.push({dist:400,unit:'m',timeSec:0,restSec:90});
+    return {varied:false, distance:400, unit:'m', restSec:90, reps};
+  }
+  if(Array.isArray(aw.reps)){
+    return {
+      varied:!!aw.varied,
+      distance:aw.distance!=null?aw.distance:400,
+      unit:aw.unit||'m',
+      restSec:aw.restSec!=null?aw.restSec:90,
+      reps:aw.reps.map(r=>({dist:r.dist!=null?r.dist:0, unit:r.unit||'m', timeSec:r.timeSec||0, restSec:r.restSec!=null?r.restSec:90})),
+    };
+  }
+  const d=aw.distance!=null?aw.distance:400, u=aw.unit||'m', rest=aw.restSec!=null?aw.restSec:90;
+  const times=Array.isArray(aw.times)?aw.times:[0,0,0,0,0,0];
+  return {varied:false, distance:d, unit:u, restSec:rest, reps:times.map(t=>({dist:d,unit:u,timeSec:t||0,restSec:rest}))};
+}
 let runModalCtx=null;   // {dateISO, editId, forceMode} — lets "back to workout" from the pace calculator restore this session
 function openRunModal(dateISO, editId=null, forceMode=null, preserve=false){
   const a=currentAthlete();
@@ -2004,7 +2123,7 @@ function openRunModal(dateISO, editId=null, forceMode=null, preserve=false){
   if(!preserve){ draftSets = r&&r.workout ? JSON.parse(JSON.stringify(r.workout.sets)) : [{reps:6,effort:'400m',target:'',rest:'90s'}]; }
   if(!preserve){
     const aw = r&&r.workout&&r.workout.actual;
-    actualWorkout = aw ? JSON.parse(JSON.stringify(aw)) : {distance:400,unit:'m',restSec:90,times:[0,0,0,0,0,0]};
+    actualWorkout = normalizeActual(aw);
   }
   if(!preserve){
     const wu0 = r&&r.workout ? r.workout.warmup : {dist:0,dur:10};
@@ -2056,9 +2175,7 @@ function openRunModal(dateISO, editId=null, forceMode=null, preserve=false){
         <div id="setsBuilderWrap" style="display:${isPlan?'block':'none'}">
           <div class="field"><label>⚡ Main set</label>
             <div class="wb">
-              <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:2px">
-                <div class="set-labels" style="margin:0;flex:1"><span>Reps</span><span>Distance / Time</span><span>Target pace</span><span>Recovery</span><span></span></div>
-              </div>
+              <div class="set-labels"><span>Reps</span><span>Distance / Time</span><span>Target pace</span><span>Recovery</span><span></span></div>
               <div id="setRows"></div>
               <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
                 <button class="add-set" style="flex:none" onclick="addSet()">＋ Add another set</button>
@@ -2070,25 +2187,12 @@ function openRunModal(dateISO, editId=null, forceMode=null, preserve=false){
         </div>
         <div id="actualWorkoutWrap" style="display:${isPlan?'none':'block'}">
           <div class="field"><label>⚡ Log your actual reps</label>
-            <div class="aw-setup">
-              <div class="field" style="margin:0"><label style="font-size:11px">Rep distance</label><input type="number" step="0.01" min="0" id="aw-dist" value="${actualWorkout.distance}" placeholder="800" oninput="setActualMeta()"></div>
-              <div class="field" style="margin:0"><label style="font-size:11px">Unit</label>
-                <select id="aw-unit" onchange="setActualMeta()">
-                  <option value="m" ${actualWorkout.unit==='m'?'selected':''}>m</option>
-                  <option value="km" ${actualWorkout.unit==='km'?'selected':''}>km</option>
-                  <option value="mi" ${actualWorkout.unit==='mi'?'selected':''}>mi</option>
-                </select></div>
-              <div class="field" style="margin:0"><label style="font-size:11px">How many reps</label><input type="number" min="1" max="40" id="aw-reps" value="${actualWorkout.times.length}" placeholder="6" oninput="setActualReps(this.value)"></div>
-              <div class="field" style="margin:0"><label style="font-size:11px">Rest between</label>
-                <div style="display:flex;align-items:center;gap:6px">
-                  <input type="number" min="0" id="aw-rest-m" value="${Math.floor(actualWorkout.restSec/60)}" placeholder="mm" oninput="setActualMeta()" style="flex:1;min-width:0">
-                  <span style="color:var(--muted);font-weight:800">:</span>
-                  <input type="number" min="0" max="59" id="aw-rest-s" value="${actualWorkout.restSec%60}" placeholder="ss" oninput="setActualMeta()" style="flex:1;min-width:0">
-                </div></div>
+            <div class="aw-mode" id="awMode">
+              <button type="button" data-varied="0" class="${actualWorkout.varied?'':'sel'}" onclick="setActualVaried(false)">🔁 Same distance</button>
+              <button type="button" data-varied="1" class="${actualWorkout.varied?'sel':''}" onclick="setActualVaried(true)">🪜 Mixed / ladder</button>
             </div>
-            <div id="awRows" class="aw-reps"></div>
-            <div id="awSummary"></div>
-            <div class="help" style="margin-top:10px">Total distance &amp; time above auto-fill from these reps plus your warm-up/cool-down below.</div>
+            <div id="actualBuilder"></div>
+            <div class="help" style="margin-top:10px"><b>Same distance</b> for straight sets like 10×800m · <b>Mixed / ladder</b> when each rep differs (e.g. mile, 1&nbsp;km, mile, 1&nbsp;km) — set the distance <i>and</i> rest per rep. Total distance &amp; time auto-fill from these reps plus your warm-up/cool-down.</div>
           </div>
         </div>
         <div class="field"><label style="font-size:11px;color:var(--muted);font-weight:700">💧 COOL-DOWN</label>
@@ -2100,18 +2204,25 @@ function openRunModal(dateISO, editId=null, forceMode=null, preserve=false){
       <div id="stridesSection" style="display:${TYPES[type].isRest?'none':'block'}">
         <div class="field"><label>Strides / hill sprints <span style="font-weight:400;color:var(--muted);text-transform:none;letter-spacing:0">(optional)</span></label>
           <div class="strides-box">
-            <div class="field" style="margin:0"><label style="font-size:11px">Type</label>
-              <select id="s-mode" onchange="toggleStridesDetail()">
-                <option value="off" ${!r||!r.strides?'selected':''}>None</option>
-                <option value="strides" ${r&&r.strides&&r.strides.mode==='strides'?'selected':''}>🏃💨 Strides</option>
-                <option value="hills" ${r&&r.strides&&r.strides.mode==='hills'?'selected':''}>⛰️ Hill sprints</option>
-              </select>
+            <div class="sb-row">
+              <div class="sb-field sb-type">
+                <span class="sbl">Type</span>
+                <select id="s-mode" onchange="toggleStridesDetail()">
+                  <option value="off" ${!r||!r.strides?'selected':''}>None</option>
+                  <option value="strides" ${r&&r.strides&&r.strides.mode==='strides'?'selected':''}>🏃💨 Strides</option>
+                  <option value="hills" ${r&&r.strides&&r.strides.mode==='hills'?'selected':''}>⛰️ Hill sprints</option>
+                </select>
+              </div>
+              <div class="sb-field sb-count" id="stridesCountWrap" style="display:${r&&r.strides?'flex':'none'}">
+                <span class="sbl">Reps</span>
+                <input type="number" id="s-count" value="${r&&r.strides?r.strides.count:6}" min="1" max="20" placeholder="6">
+              </div>
+              <div class="sb-field sb-length" id="stridesLengthWrap" style="display:${r&&r.strides?'flex':'none'}">
+                <span class="sbl">Distance / duration each</span>
+                <input type="text" id="s-length" value="${r&&r.strides?r.strides.length:'100m'}" placeholder="e.g. 100m or 10s">
+              </div>
             </div>
-            <div id="stridesDetailRow" style="display:${r&&r.strides?'flex':'none'};gap:12px;align-items:end;margin-top:12px">
-              <div class="field" style="margin:0;max-width:100px"><label style="font-size:11px">Reps</label><input type="number" id="s-count" value="${r&&r.strides?r.strides.count:6}" min="1" max="20" placeholder="6"></div>
-              <div class="field" style="margin:0;flex:1"><label style="font-size:11px">Distance / duration each</label><input type="text" id="s-length" value="${r&&r.strides?r.strides.length:'100m'}" placeholder="e.g. 100m or 10s"></div>
-            </div>
-            <div class="help" style="margin:${r&&r.strides?'10px':'0'} 0 0">Done after the main run, once you've cooled down enough to run fast safely.</div>
+            <div class="help" id="stridesActiveHelp" style="margin:${r&&r.strides?'12px':'0'} 0 0;display:${r&&r.strides?'block':'none'}">Done after the main run, once you've cooled down enough to run fast safely.</div>
           </div>
           <div class="help">Short accelerations after an easy or long run to build speed &amp; strength — e.g. 6×100m strides or 8×10s hill sprints.</div>
         </div>
@@ -2131,7 +2242,7 @@ function openRunModal(dateISO, editId=null, forceMode=null, preserve=false){
       <button class="btn btn-primary" onclick="saveRun('${editId||''}')">${r?'Save changes':(isPlan?'Prescribe':'Save run')}</button>
     </div>`);
   renderSetRows();
-  if(!isPlan && TYPES[type].structured) renderActualRows();
+  if(!isPlan && TYPES[type].structured) renderActualBuilder();
   document.querySelectorAll('#typePicker .type-opt').forEach(o=>{ o.onclick=()=>{
     document.querySelectorAll('#typePicker .type-opt').forEach(x=>x.classList.remove('sel')); o.classList.add('sel');
     draftType=o.dataset.type;
@@ -2145,6 +2256,8 @@ function openRunModal(dateISO, editId=null, forceMode=null, preserve=false){
     $('#restDateRow').style.display=isRest?'block':'none';
     $('#stridesSection').style.display=isRest?'none':'block';
     if($('#rpeField')) $('#rpeField').style.display=isRest?'none':'block';
+    // (re)build the actual-rep logger when moving into a structured type while logging
+    if(!isRest && TYPES[o.dataset.type].structured && draftMode!=='planned' && $('#actualBuilder')) renderActualBuilder();
     // keep the two date inputs in sync when toggling
     if(isRest && $('#f-date-rest') && $('#f-date')) $('#f-date-rest').value=$('#f-date').value;
     if(!isRest && $('#f-date') && $('#f-date-rest')) $('#f-date').value=$('#f-date-rest').value;
@@ -2160,7 +2273,7 @@ function openRunModal(dateISO, editId=null, forceMode=null, preserve=false){
     if($('#fDistWrap')) $('#fDistWrap').style.display=hideMetrics?'none':'block';
     if($('#fDurWrap')) $('#fDurWrap').style.display=hideMetrics?'none':'block';
     if($('#metricsHiddenMsg')) $('#metricsHiddenMsg').style.display=hideMetrics?'block':'none';
-    if(!plan) renderActualRows(); }; });
+    if(!plan) renderActualBuilder(); }; });
 }
 function renderSetRows(){
   const el=$('#setRows'); if(!el) return;
@@ -2178,64 +2291,139 @@ function addSet(){ draftSets.push({reps:4,effort:'200m',target:'',rest:'60s'}); 
 function removeSet(i){ draftSets.splice(i,1); if(!draftSets.length) draftSets.push({reps:1,effort:'',target:'',rest:''}); renderSetRows(); }
 
 /* ---------- Actual interval/tempo/fartlek rep logging ---------- */
+// a fresh rep inherits the current uniform defaults so adding reps feels natural
+function makeRep(){ return {dist:actualWorkout.distance||400, unit:actualWorkout.unit||'m', timeSec:0, restSec:actualWorkout.restSec!=null?actualWorkout.restSec:90}; }
+// switch between uniform (same distance) and mixed/ladder (per-rep distance & rest)
+function setActualVaried(v){
+  actualWorkout.varied=!!v;
+  document.querySelectorAll('#awMode button').forEach(b=>b.classList.toggle('sel',(b.dataset.varied==='1')===actualWorkout.varied));
+  renderActualBuilder();
+}
 function setActualReps(n){
   n=Math.max(1,Math.min(40,parseInt(n)||1));
-  const times=actualWorkout.times;
-  if(n>times.length){ while(times.length<n) times.push(0); }
-  else { times.length=n; }
+  const reps=actualWorkout.reps;
+  if(n>reps.length){ while(reps.length<n) reps.push(makeRep()); }
+  else { reps.length=n; }
   renderActualRows();
 }
+function addActualRep(){ if(actualWorkout.reps.length>=40){ toast('Max 40 reps'); return; } actualWorkout.reps.push(makeRep()); renderActualRows(); }
+function removeActualRep(i){ actualWorkout.reps.splice(i,1); if(!actualWorkout.reps.length) actualWorkout.reps.push(makeRep()); renderActualRows(); }
+// uniform setup: one distance / unit / rest applied to EVERY rep
 function setActualMeta(){
   actualWorkout.distance=parseFloat($('#aw-dist').value)||0;
   actualWorkout.unit=$('#aw-unit').value;
   const rm=parseInt($('#aw-rest-m').value)||0, rs=Math.max(0,Math.min(59,parseInt($('#aw-rest-s').value)||0));
   actualWorkout.restSec=rm*60+rs;
+  actualWorkout.reps.forEach(r=>{ r.dist=actualWorkout.distance; r.unit=actualWorkout.unit; r.restSec=actualWorkout.restSec; });
   renderActualRows();
 }
-function setActualRepTime(i,which,val){
-  const cur=actualWorkout.times[i]||0;
-  let m=Math.floor(cur/60), s=cur%60;
+// mixed/ladder: per-rep distance, unit and rest
+function setRepDist(i,val){ actualWorkout.reps[i].dist=parseFloat(val)||0; renderActualRowPace(i); recalcActualTotals(); }
+function setRepUnit(i,val){ actualWorkout.reps[i].unit=val; renderActualRowPace(i); recalcActualTotals(); }
+function setRepRest(i,which,val){
+  const r=actualWorkout.reps[i]; let m=Math.floor((r.restSec||0)/60), s=(r.restSec||0)%60;
   if(which==='m') m=Math.max(0,parseInt(val)||0); else s=Math.max(0,Math.min(59,parseInt(val)||0));
-  actualWorkout.times[i]=m*60+s;
+  r.restSec=m*60+s; recalcActualTotals();
+}
+function setActualRepTime(i,which,val){
+  const r=actualWorkout.reps[i]; let m=Math.floor((r.timeSec||0)/60), s=(r.timeSec||0)%60;
+  if(which==='m') m=Math.max(0,parseInt(val)||0); else s=Math.max(0,Math.min(59,parseInt(val)||0));
+  r.timeSec=m*60+s;
   renderActualRowPace(i);
   recalcActualTotals();
 }
-function actualRowPaceStr(timeSec){
-  const km=repDistToKm(actualWorkout.distance,actualWorkout.unit);
-  if(!km||!timeSec) return '—';
-  return paceSecToStr(timeSec/km)+'/'+unitLabel();
-}
+function repPaceStr(r){ const km=repDistToKm(r.dist,r.unit); if(!km||!r.timeSec) return '—'; return paceSecToStr(r.timeSec/km)+'/'+unitLabel(); }
 function renderActualRowPace(i){
   const el=document.querySelector(`.aw-row[data-i="${i}"] .awp`); if(!el) return;
-  el.innerHTML=`${actualRowPaceStr(actualWorkout.times[i])}<small> pace</small>`;
+  el.innerHTML=`${repPaceStr(actualWorkout.reps[i])}<small> pace</small>`;
 }
+// full rebuild — used on open, mode-switch and varied toggle (structure changes)
+function renderActualBuilder(){
+  const host=$('#actualBuilder'); if(!host) return;
+  const aw=actualWorkout;
+  let setup='', head='';
+  if(!aw.varied){
+    setup=`<div class="aw-setup">
+      <div class="field" style="margin:0"><label style="font-size:11px">Rep distance</label><input type="number" step="0.01" min="0" id="aw-dist" value="${aw.distance}" placeholder="800" oninput="setActualMeta()"></div>
+      <div class="field" style="margin:0"><label style="font-size:11px">Unit</label>
+        <select id="aw-unit" onchange="setActualMeta()">
+          <option value="m" ${aw.unit==='m'?'selected':''}>m</option>
+          <option value="km" ${aw.unit==='km'?'selected':''}>km</option>
+          <option value="mi" ${aw.unit==='mi'?'selected':''}>mi</option>
+        </select></div>
+      <div class="field" style="margin:0"><label style="font-size:11px">How many reps</label><input type="number" min="1" max="40" id="aw-reps" value="${aw.reps.length}" placeholder="6" oninput="setActualReps(this.value)"></div>
+      <div class="field" style="margin:0"><label style="font-size:11px">Rest between</label>
+        <div style="display:flex;align-items:center;gap:6px">
+          <input type="number" min="0" id="aw-rest-m" value="${Math.floor(aw.restSec/60)}" placeholder="mm" oninput="setActualMeta()" style="flex:1;min-width:0">
+          <span style="color:var(--muted);font-weight:800">:</span>
+          <input type="number" min="0" max="59" id="aw-rest-s" value="${aw.restSec%60}" placeholder="ss" oninput="setActualMeta()" style="flex:1;min-width:0">
+        </div></div>
+    </div>`;
+  } else {
+    head=`<div class="aw-head"><span>#</span><span>Distance</span><span>Time</span><span>Rest after</span><span>Pace</span><span></span></div>`;
+  }
+  const addBtn = aw.varied ? `<button class="add-set" style="margin-top:8px" onclick="addActualRep()">＋ Add rep</button>` : '';
+  host.innerHTML = setup + head + `<div id="awRows" class="aw-reps"></div>` + addBtn + `<div id="awSummary"></div>`;
+  renderActualRows();
+}
+// light rebuild — only the rep rows + summary, so setup inputs keep focus while typing
 function renderActualRows(){
   const el=$('#awRows'); if(!el) return;
-  el.innerHTML=actualWorkout.times.map((t,i)=>{
-    const m=Math.floor(t/60), s=t%60;
-    return `<div class="aw-row" data-i="${i}">
-      <div class="awn">#${i+1}</div>
-      <div class="awt">
-        <input type="number" min="0" value="${t?m:''}" placeholder="mm" oninput="setActualRepTime(${i},'m',this.value)">
-        <span style="color:var(--muted);font-weight:800">:</span>
-        <input type="number" min="0" max="59" value="${t?String(s).padStart(2,'0'):''}" placeholder="ss" oninput="setActualRepTime(${i},'s',this.value)">
-      </div>
-      <div class="awp">${actualRowPaceStr(t)}<small> pace</small></div>
-    </div>`;
-  }).join('');
+  el.innerHTML = actualWorkout.reps.map((r,i)=> actualWorkout.varied ? variedRowHTML(r,i) : uniformRowHTML(r,i)).join('');
   recalcActualTotals();
+}
+function uniformRowHTML(r,i){
+  const m=Math.floor(r.timeSec/60), s=r.timeSec%60;
+  return `<div class="aw-row" data-i="${i}">
+    <div class="awn">#${i+1}</div>
+    <div class="awt">
+      <input type="number" min="0" value="${r.timeSec?m:''}" placeholder="mm" oninput="setActualRepTime(${i},'m',this.value)">
+      <span style="color:var(--muted);font-weight:800">:</span>
+      <input type="number" min="0" max="59" value="${r.timeSec?String(s).padStart(2,'0'):''}" placeholder="ss" oninput="setActualRepTime(${i},'s',this.value)">
+    </div>
+    <div class="awp">${repPaceStr(r)}<small> pace</small></div>
+  </div>`;
+}
+function variedRowHTML(r,i){
+  const m=Math.floor(r.timeSec/60), s=r.timeSec%60;
+  const rm=Math.floor((r.restSec||0)/60), rs=(r.restSec||0)%60;
+  return `<div class="aw-row varied" data-i="${i}">
+    <div class="awn">#${i+1}</div>
+    <div class="iu-group awd">
+      <input type="number" step="0.01" min="0" value="${r.dist||''}" placeholder="dist" oninput="setRepDist(${i},this.value)">
+      <select class="iu-suffix iu-select" onchange="setRepUnit(${i},this.value)">
+        <option value="m" ${r.unit==='m'?'selected':''}>m</option>
+        <option value="km" ${r.unit==='km'?'selected':''}>km</option>
+        <option value="mi" ${r.unit==='mi'?'selected':''}>mi</option>
+      </select>
+    </div>
+    <div class="awt">
+      <input type="number" min="0" value="${r.timeSec?m:''}" placeholder="mm" oninput="setActualRepTime(${i},'m',this.value)">
+      <span style="color:var(--muted);font-weight:800">:</span>
+      <input type="number" min="0" max="59" value="${r.timeSec?String(s).padStart(2,'0'):''}" placeholder="ss" oninput="setActualRepTime(${i},'s',this.value)">
+    </div>
+    <div class="awt awrest">
+      <input type="number" min="0" value="${r.restSec?rm:''}" placeholder="mm" oninput="setRepRest(${i},'m',this.value)">
+      <span style="color:var(--muted);font-weight:800">:</span>
+      <input type="number" min="0" max="59" value="${r.restSec?String(rs).padStart(2,'0'):''}" placeholder="ss" oninput="setRepRest(${i},'s',this.value)">
+    </div>
+    <div class="awp">${repPaceStr(r)}<small> pace</small></div>
+    <button class="x" onclick="removeActualRep(${i})" title="Remove rep">×</button>
+  </div>`;
 }
 // auto-fill the Total distance / Total time fields from the logged reps (main set only)
 function recalcActualTotals(){
   const wrap=$('#actualWorkoutWrap'); if(!wrap || wrap.style.display==='none') return;
-  const km=repDistToKm(actualWorkout.distance,actualWorkout.unit);
-  const reps=actualWorkout.times.length;
-  const timedReps=actualWorkout.times.filter(t=>t>0).length;
-  const totalKm=km*reps;
-  const totalSec=actualWorkout.times.reduce((s,t)=>s+t,0) + actualWorkout.restSec*Math.max(0,timedReps-1);
+  const reps=actualWorkout.reps;
+  let totalKm=0, timedSec=0, timedKm=0, restSec=0;
+  reps.forEach((r,i)=>{
+    totalKm += repDistToKm(r.dist,r.unit);
+    if(r.timeSec>0){ timedSec+=r.timeSec; timedKm+=repDistToKm(r.dist,r.unit); if(i<reps.length-1) restSec+=(r.restSec||0); }
+  });
+  const totalSec = timedSec + restSec;   // main-set time = running time + rest between timed reps
+  const avgPace = timedKm ? timedSec/timedKm : 0;
   const sumEl=$('#awSummary');
   if(sumEl){
-    const avgPace = timedReps ? actualWorkout.times.filter(t=>t>0).reduce((s,t)=>s+t,0)/(km*timedReps) : 0;
     sumEl.innerHTML = totalKm>0 ? `<div class="aw-summary">
       <div>Main set distance<b>${fmtDist(totalKm)} ${unitLabel()}</b></div>
       <div>Main set time<b>${secToClock(totalSec)}</b></div>
@@ -2299,12 +2487,20 @@ function saveRun(editId){
     } else {
       // logging actual reps via the "Log your actual reps" builder
       const aw=actualWorkout;
-      const km=repDistToKm(aw.distance,aw.unit);
-      const timedTimes=aw.times.filter(t=>t>0);
-      const avgSec = (timedTimes.length && km) ? timedTimes.reduce((s,t)=>s+t,0)/(km*timedTimes.length) : 0;
-      const distLabel = aw.distance ? `${aw.distance}${aw.unit}` : '—';
-      const restLabel = aw.restSec ? `${Math.floor(aw.restSec/60)}:${String(aw.restSec%60).padStart(2,'0')}` : '';
-      const summarySet = { reps:aw.times.length, effort:distLabel, target:avgSec?paceSecToStr(avgSec)+'/'+unitLabel()+' avg':'', rest:restLabel };
+      let timedKm=0, timedSec=0;
+      aw.reps.forEach(r=>{ if(r.timeSec>0){ timedKm+=repDistToKm(r.dist,r.unit); timedSec+=r.timeSec; } });
+      const avgSec = timedKm ? timedSec/timedKm : 0;
+      const target = avgSec ? paceSecToStr(avgSec)+'/'+unitLabel()+' avg' : '';
+      let summarySet;
+      if(aw.varied){
+        // ladder / mixed session — describe the actual sequence, e.g. "1mi · 1km · 1mi · 1km"
+        const seq=aw.reps.map(r=>r.dist?`${r.dist}${r.unit}`:'—').join(' · ');
+        summarySet={ reps:aw.reps.length, effort:seq, target, rest:'', varied:true };
+      } else {
+        const distLabel = aw.distance ? `${aw.distance}${aw.unit}` : '—';
+        const restLabel = aw.restSec ? `${Math.floor(aw.restSec/60)}:${String(aw.restSec%60).padStart(2,'0')}` : '';
+        summarySet={ reps:aw.reps.length, effort:distLabel, target, rest:restLabel };
+      }
       workout={ warmup:wuF, cooldown:cdF, sets:[summarySet], actual:JSON.parse(JSON.stringify(aw)) };
     }
   }
@@ -2328,14 +2524,22 @@ function openRunDetail(id){
   const t=TYPES[r.type]; const planned=r.status==='planned'; const isRest=!!t.isRest;
   let wk='';
   if(r.workout){
-    const setHtml=r.workout.sets.map(s=>`<div class="wk-set"><span class="rep">${s.reps}×</span><span style="font-weight:700">${esc(s.effort)}</span>
+    const setHtml=r.workout.sets.map(s=>`<div class="wk-set">${s.varied?'':`<span class="rep">${s.reps}×</span>`}<span style="font-weight:700">${esc(s.effort)}</span>
       ${s.target?`<span style="color:var(--muted)">@ ${esc(s.target)}</span>`:''}${s.rest?`<span style="margin-left:auto;color:var(--muted)">rest ${esc(s.rest)}</span>`:''}</div>`).join('');
     let repBlk='';
-    const aw=r.workout.actual;
-    if(aw && aw.times && aw.times.some(t=>t>0)){
-      const km=repDistToKm(aw.distance,aw.unit);
-      const rows=aw.times.map((t,i)=> t>0 ? `<div class="wk-set"><span class="rep">#${i+1}</span><span style="font-weight:700">${secToClock(t)}</span><span style="margin-left:auto;color:var(--muted)">${km?paceSecToStr(t/km)+'/'+unitLabel():''}</span></div>` : '').join('');
-      repBlk=`<div class="wk-block"><div class="h">⏱️ Rep-by-rep</div>${rows}</div>`;
+    if(r.workout.actual){
+      const aw=normalizeActual(r.workout.actual);
+      if(aw.reps.some(x=>x.timeSec>0)){
+        const rows=aw.reps.map((x,i)=>{
+          if(!x.timeSec) return '';
+          const km=repDistToKm(x.dist,x.unit);
+          const distTxt=x.dist?`${x.dist}${x.unit}`:'';
+          const pace=km?paceSecToStr(x.timeSec/km)+'/'+unitLabel():'';
+          const restTxt=x.restSec?`rest ${Math.floor(x.restSec/60)}:${String(x.restSec%60).padStart(2,'0')}`:'';
+          return `<div class="wk-set"><span class="rep">#${i+1}</span><span style="font-weight:700">${esc(distTxt)}${distTxt?' · ':''}${secToClock(x.timeSec)}</span><span style="margin-left:auto;color:var(--muted)">${pace}${aw.varied&&restTxt?` · ${restTxt}`:''}</span></div>`;
+        }).join('');
+        repBlk=`<div class="wk-block"><div class="h">⏱️ Rep-by-rep</div>${rows}</div>`;
+      }
     }
     wk=`<div class="wk-block"><div class="h">🔥 Warm-up</div>${fmtWarmCool(r.workout.warmup)}</div>
       <div class="wk-block"><div class="h">⚡ Main set</div>${setHtml||'—'}</div>
@@ -2384,32 +2588,107 @@ function completePlanned(id){
 function openAthleteModal(){ athleteForm(null); }
 function editAthlete(id){ athleteForm(id); }
 let draftRaces=[];
+// split seconds into {h,m,s} strings for the PB time inputs
+function pbSecParts(sec){ if(!sec) return {h:'',m:'',s:''}; sec=Math.round(sec); return {h:Math.floor(sec/3600)||'', m:Math.floor((sec%3600)/60), s:sec%60}; }
+// one PB row: label + h:mm:ss inputs, live-updating the VDOT readout
+function pbInputHTML(key,label,timeSec){
+  const p=pbSecParts(timeSec);
+  return `<div>
+    <div class="pb-row-label"><span class="pbd"></span>${label}</div>
+    <div class="pb-time">
+      <input type="number" min="0" max="9" id="pb-${key}-h" value="${p.h}" placeholder="h" oninput="updateOnboardingVdot()">
+      <span>:</span>
+      <input type="number" min="0" max="59" id="pb-${key}-m" value="${p.m}" placeholder="mm" oninput="updateOnboardingVdot()">
+      <span>:</span>
+      <input type="number" min="0" max="59" id="pb-${key}-s" value="${p.s}" placeholder="ss" oninput="updateOnboardingVdot()">
+    </div></div>`;
+}
+// read a PB row back into total seconds (0 if left blank)
+function readPB(key){ const h=parseInt($(`#pb-${key}-h`).value)||0, m=parseInt($(`#pb-${key}-m`).value)||0, s=parseInt($(`#pb-${key}-s`).value)||0; const t=h*3600+m*60+s; return t>0?t:0; }
+function collectPBs(){ const pbs={}; PB_DISTS.forEach(d=>{ const t=readPB(d.k); if(t) pbs[d.k]=t; }); return pbs; }
+// live fitness estimate shown under the personal-bests grid during onboarding
+function updateOnboardingVdot(){
+  const out=$('#pbVdotOut'); if(!out) return;
+  const best=bestPB(collectPBs());
+  if(!best){ out.innerHTML=`<div class="help" style="margin:0">Enter at least one personal best to estimate fitness (VDOT) and auto-set this athlete's training paces.</div>`; return; }
+  const d=RACE_DISTS.find(x=>x.k===best.distKey);
+  out.innerHTML=`<div class="pc-vdot" style="margin:0"><div><div class="vnum">${best.vdot.toFixed(0)}</div><div class="vlab">VDOT</div></div><div class="vdesc">Best result: <b>${d.label} in ${secToClock(best.timeSec)}</b>. This sets the athlete's training paces automatically — fine-tune anytime in the 🧮 Pace Calculator.</div></div>`;
+}
+function updateAgeOut(){ const el=$('#a-age-out'); if(!el) return; const age=ageFromDob($('#a-dob').value); el.textContent = age!=null ? `${age} years old` : 'Optional — used for context and age-graded coaching.'; }
 function athleteForm(id){
   const a = id ? state.athletes.find(x=>x.id===id) : null;
   draftRaces = a && a.races ? JSON.parse(JSON.stringify(a.races)) : [];
+  const pbs = a && a.personalBests ? a.personalBests : {};
   openModal(`
-    <div class="modal-head"><h2>${a?'Edit':'Add'} Athlete</h2><button class="close" onclick="closeModal()">×</button></div>
+    <div class="modal-head"><h2>${a?'Edit':'New'} Athlete${a?'':' — Onboarding'}</h2><button class="close" onclick="closeModal()">×</button></div>
     <div class="modal-body">
-      <div class="field"><label>Name</label><input id="a-name" value="${a?esc(a.name):''}" placeholder="e.g. Jordan Reyes"></div>
-      <div class="field"><label>Experience level</label>
-        <select id="a-level">
-          <option value="beginner" ${a&&a.level==='beginner'?'selected':''}>Beginner — building the habit</option>
-          <option value="intermediate" ${a&&a.level==='intermediate'?'selected':''}>Intermediate — racing regularly</option>
-          <option value="elite" ${a&&a.level==='elite'?'selected':''}>Elite — high volume / competitive</option>
-        </select><div class="help">Level tailors suggested weekly targets and coach-note benchmarks.</div></div>
-      <div class="field"><label>Races</label>
-        <div id="racesList"></div>
-        <button type="button" class="add-set" onclick="addRaceRow()">＋ Add race</button>
-        <div class="help">The soonest upcoming race drives the countdown card and shows as a 🏁 marker on the calendar.</div></div>
-      <div class="field"><label>Weekly target (${unitLabel()})</label><input type="number" id="a-target" value="${a?fmtDist(a.weeklyTarget||0,0):defaultTarget('beginner')}" placeholder="20"></div>
-      ${a?`<div class="help">🧮 Tip: use the <b>Paces</b> button on ${esc(a.name.split(' ')[0])}'s athlete card to set a fitness benchmark for accurate workout paces.</div>`:''}
+
+      <div class="onb-section">
+        <span class="onb-legend">1 · Basics</span>
+        <div class="field"><label>Full name</label><input id="a-name" value="${a?esc(a.name):''}" placeholder="e.g. Jordan Reyes"></div>
+        <div class="field-row-3">
+          <div class="field" style="margin:0"><label>Date of birth</label><input type="date" id="a-dob" value="${a?a.dob||'':''}" oninput="updateAgeOut()"></div>
+          <div class="field" style="margin:0"><label>Sex</label>
+            <select id="a-sex">
+              <option value="" ${!a||!a.sex?'selected':''}>Prefer not to say</option>
+              <option value="F" ${a&&a.sex==='F'?'selected':''}>Female</option>
+              <option value="M" ${a&&a.sex==='M'?'selected':''}>Male</option>
+              <option value="X" ${a&&a.sex==='X'?'selected':''}>Non-binary / other</option>
+            </select></div>
+          <div class="field" style="margin:0"><label>Experience level</label>
+            <select id="a-level">
+              <option value="beginner" ${a&&a.level==='beginner'?'selected':''}>Beginner</option>
+              <option value="intermediate" ${a&&a.level==='intermediate'?'selected':''}>Intermediate</option>
+              <option value="elite" ${a&&a.level==='elite'?'selected':''}>Elite</option>
+            </select></div>
+        </div>
+        <div class="help" id="a-age-out">Optional — used for context and age-graded coaching.</div>
+      </div>
+
+      <div class="onb-section">
+        <span class="onb-legend">2 · Personal bests <span class="lite">— power the pace calculator & fitness score (leave blank if unknown)</span></span>
+        <div class="pb-grid">
+          ${PB_DISTS.map(d=>pbInputHTML(d.k,d.label,pbs[d.k])).join('')}
+        </div>
+        <div class="onb-vdot-wrap" id="pbVdotOut" style="margin-top:14px"></div>
+      </div>
+
+      <div class="onb-section">
+        <span class="onb-legend">3 · Goals & races</span>
+        <div class="field"><label>Primary goal</label><textarea id="a-goal" placeholder="e.g. Break 1:45 in the half marathon this spring; build to 5 runs/week." style="min-height:56px">${a?esc(a.goal||''):''}</textarea></div>
+        <div class="field"><label>Races</label>
+          <div id="racesList"></div>
+          <button type="button" class="add-set" onclick="addRaceRow()">＋ Add race</button>
+          <div class="help">The soonest upcoming race drives the countdown card and shows as a 🏁 marker on the calendar.</div></div>
+      </div>
+
+      <div class="onb-section">
+        <span class="onb-legend">4 · Training profile</span>
+        <div class="field-row">
+          <div class="field" style="margin:0"><label>Weekly target (${unitLabel()})</label><input type="number" id="a-target" value="${a?fmtDist(a.weeklyTarget||0,0):defaultTarget('beginner')}" placeholder="20"></div>
+          <div class="field" style="margin:0"><label>Days available / week</label>
+            <select id="a-days">
+              <option value="" ${!a||!a.daysPerWeek?'selected':''}>—</option>
+              ${[2,3,4,5,6,7].map(n=>`<option value="${n}" ${a&&+a.daysPerWeek===n?'selected':''}>${n} days</option>`).join('')}
+            </select></div>
+        </div>
+      </div>
+
+      <div class="onb-section" style="margin-bottom:6px">
+        <span class="onb-legend">5 · Health & contact <span class="lite">— optional but useful for a coach</span></span>
+        <div class="field"><label>Injury history / health notes</label><textarea id="a-health" placeholder="Past injuries, niggles to watch, medical notes, footwear, etc." style="min-height:56px">${a?esc(a.healthNotes||''):''}</textarea></div>
+        <div class="field" style="margin:0"><label>Email / contact</label><input id="a-email" value="${a?esc(a.email||''):''}" placeholder="athlete@email.com"></div>
+      </div>
+
     </div>
     <div class="modal-foot">
       ${a?`<button class="btn btn-ghost" style="color:var(--interval);margin-right:auto" onclick="removeAthlete('${a.id}')">Delete athlete</button>`:''}
       <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
-      <button class="btn btn-primary" onclick="saveAthlete('${id||''}')">${a?'Save':'Add athlete'}</button></div>`);
+      <button class="btn btn-primary" onclick="saveAthlete('${id||''}')">${a?'Save changes':'Add athlete'}</button></div>`, true);
   $('#a-level').onchange=e=>{ if(!a) $('#a-target').value=defaultTarget(e.target.value); };
   renderRaceRows();
+  updateOnboardingVdot();
+  updateAgeOut();
 }
 function renderRaceRows(){
   const el=$('#racesList'); if(!el) return;
@@ -2430,10 +2709,28 @@ function saveAthlete(id){
   const name=$('#a-name').value.trim(); if(!name){ toast('Enter a name'); return; }
   let target=parseFloat($('#a-target').value)||0; if(state.unit==='mi') target*=KM_PER_MI;
   const races=draftRaces.filter(r=>r.name.trim()&&r.date).map(r=>({id:r.id||uid(),name:r.name.trim(),date:r.date}));
-  const data={name,level:$('#a-level').value,races,weeklyTarget:+target.toFixed(1)};
+  const pbs=collectPBs();
+  const data={
+    name, level:$('#a-level').value, races, weeklyTarget:+target.toFixed(1),
+    dob:$('#a-dob').value||'', sex:$('#a-sex').value||'', goal:$('#a-goal').value.trim(),
+    daysPerWeek:$('#a-days').value||'', healthNotes:$('#a-health').value.trim(), email:$('#a-email').value.trim(),
+    personalBests:pbs,
+  };
   let athlete;
   if(id){ athlete=state.athletes.find(x=>x.id===id); Object.assign(athlete,data); }
   else { athlete={id:uid(),runs:[],benchmark:null,benchmarkHistory:[],...data}; state.athletes.push(athlete); state.activeAthlete=athlete.id; }
+  if(!Array.isArray(athlete.benchmarkHistory)) athlete.benchmarkHistory=[];
+  // derive/refresh the fitness benchmark from the best personal best so the pace
+  // calculator & workout target-pace chips work straight out of onboarding
+  const bp=bestPB(pbs);
+  if(bp){
+    athlete.benchmark={distKey:bp.distKey,timeSec:bp.timeSec};
+    const today=todayISO();
+    const ex=athlete.benchmarkHistory.find(h=>h.date===today && h.source==='pb');
+    if(ex){ ex.distKey=bp.distKey; ex.timeSec=bp.timeSec; }
+    else if(!athlete.benchmarkHistory.length){ athlete.benchmarkHistory.push({id:uid(),distKey:bp.distKey,timeSec:bp.timeSec,date:today,source:'pb'}); }
+    athlete.benchmarkHistory.sort((x,y)=>x.date.localeCompare(y.date));
+  }
   syncPrimaryRace(athlete);
   save(); closeModal(); render(); toast(id?'Athlete updated ✓':'Athlete added ✓');
 }
