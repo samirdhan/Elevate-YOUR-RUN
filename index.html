@@ -259,6 +259,39 @@ a{color:inherit}
 .aw-summary{display:flex;gap:18px;flex-wrap:wrap;margin-top:14px;padding:12px 14px;background:var(--panel-2);border:1px solid var(--line);border-radius:11px}
 .aw-summary div{font-size:12px;color:var(--muted)}
 .aw-summary b{display:block;font-size:15px;color:var(--text);font-variant-numeric:tabular-nums;margin-top:2px}
+/* ---- tempo & fartlek actual logging ---- */
+.tempo-head2,.fk-head{display:grid;gap:10px;font-size:9.5px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;padding:0 12px 4px}
+.tempo-head2 span,.fk-head span{text-align:center}
+.tempo-head2 span:nth-child(2),.tempo-head2 span:nth-child(3),.fk-head span:nth-child(2),.fk-head span:nth-child(3){text-align:left}
+.tempo-head2{grid-template-columns:34px minmax(110px,1fr) minmax(120px,1.2fr) 92px 26px}
+.fk-head{grid-template-columns:34px minmax(96px,1.1fr) minmax(96px,1fr) minmax(96px,1fr) 72px 26px}
+.tempo-row,.fk-row{display:grid;gap:10px;align-items:center;background:var(--panel-2);border:1px solid var(--line);border-radius:11px;padding:11px 12px;margin-bottom:8px}
+.tempo-row{grid-template-columns:34px minmax(110px,1fr) minmax(120px,1.2fr) 92px 26px}
+.fk-row{grid-template-columns:34px minmax(96px,1.1fr) minmax(96px,1fr) minmax(96px,1fr) 72px 26px}
+.tempo-row .awn,.fk-row .awn{font-weight:800;color:var(--muted);font-size:13px;text-align:center}
+.tempo-row .awt,.fk-row .awt{display:flex;align-items:center;gap:5px;height:40px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:0 10px}
+.tempo-row .awt:focus-within,.fk-row .awt:focus-within{border-color:var(--accent)}
+.tempo-row .awt input,.fk-row .awt input{width:100%;min-width:0;text-align:center;background:transparent;border:none;padding:0;font-size:14px;font-weight:700;color:var(--text)}
+.tempo-row .awt input:focus,.fk-row .awt input:focus{outline:none}
+.tempo-row .iu-group,.fk-row .iu-group{height:40px}
+.tempo-row .iu-group input,.fk-row .iu-group input{padding:9px 6px;font-size:14px;font-weight:700}
+.tempo-row .awp,.fk-row .awp{font-weight:800;font-variant-numeric:tabular-nums;font-size:13px;text-align:right;white-space:nowrap}
+.tempo-row .awp small,.fk-row .awp small{color:var(--muted);font-weight:600;display:block;font-size:9.5px}
+.tempo-row .x,.fk-row .x{color:var(--muted);text-align:center;font-size:18px;border-radius:8px;height:34px;line-height:34px}
+.tempo-row .x:hover,.fk-row .x:hover{color:var(--interval);background:var(--panel)}
+.fk-eff{height:40px;width:100%;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:var(--text);font-weight:700;font-size:13.5px;padding:0 28px 0 10px;cursor:pointer;appearance:none;-webkit-appearance:none;-moz-appearance:none;background-image:url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath fill='%239aa4b5' d='M1 1.5l5 5 5-5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-size:10px 7px;background-position:right 9px center}
+.fk-eff:focus{outline:none;border-color:var(--accent)}
+.fk-repeat{display:flex;align-items:center;gap:10px;margin-top:12px;padding:11px 14px;background:var(--panel-2);border:1px solid var(--line);border-radius:11px;flex-wrap:wrap}
+.fk-repeat input{width:74px;height:40px;text-align:center;background:var(--panel);border:1px solid var(--line);border-radius:10px;color:var(--text);font-weight:800;font-size:16px;outline:none}
+.fk-repeat input:focus{border-color:var(--accent)}
+@media(max-width:640px){
+  .tempo-row{grid-template-columns:26px 1fr 1fr 26px}
+  .tempo-row .awp{grid-column:2/-1;text-align:left}
+  .fk-head{display:none}
+  .fk-row{grid-template-columns:26px 1fr 1fr;gap:8px}
+  .fk-row .awp{grid-column:2/-1;text-align:left}
+  .fk-row .x{grid-row:1;grid-column:3;justify-self:end}
+}
 .cal-cell.race-day{border-color:var(--race);border-width:2px}
 .cal-cell .rest{position:absolute;bottom:7px;right:9px;font-size:10px;color:var(--muted)}
 
@@ -2088,6 +2121,32 @@ let draftWarmup={mode:'time',dist:0,dur:10,distUnit:'km'}, draftCooldown={mode:'
 // rep has its own distance & rest (e.g. mile, 1km, mile, 1km  or  2km, mile, 1200, 1000):
 //   {varied, distance, unit, restSec, reps:[{dist,unit,timeSec,restSec}]}
 let actualWorkout=normalizeActual(null);
+// tempo = one (or more) sustained "comfortably hard" efforts, each with a time & the
+// distance covered, e.g. {kind:'tempo', segments:[{timeSec:1200, dist:5.03, unit:'km'}]}
+let actualTempo=normalizeTempo(null);
+// fartlek = a repeatable sequence of alternating effort segments, each with a duration
+// and an OPTIONAL distance (for GPS-measured surges), e.g.
+// {kind:'fartlek', repeat:2, segments:[{effort:'hard', timeSec:180, dist:0.6, unit:'km'}, ...]}
+let actualFartlek=normalizeFartlek(null);
+// fartlek effort levels (label + colour used in the builder & run detail)
+const FK_EFF={
+  hard:    {label:'Hard',     color:'var(--interval)'},
+  moderate:{label:'Moderate', color:'var(--tempo)'},
+  easy:    {label:'Easy',     color:'var(--easy)'},
+};
+function normalizeTempo(aw){
+  if(aw && aw.kind==='tempo' && Array.isArray(aw.segments) && aw.segments.length){
+    return {kind:'tempo', segments:aw.segments.map(s=>({timeSec:s.timeSec||0, dist:s.dist!=null?s.dist:0, unit:s.unit||'km'}))};
+  }
+  return {kind:'tempo', segments:[{timeSec:0, dist:0, unit:'km'}]};
+}
+function normalizeFartlek(aw){
+  if(aw && aw.kind==='fartlek' && Array.isArray(aw.segments) && aw.segments.length){
+    return {kind:'fartlek', repeat:aw.repeat>0?aw.repeat:1,
+      segments:aw.segments.map(s=>({effort:FK_EFF[s.effort]?s.effort:'hard', timeSec:s.timeSec||0, dist:s.dist!=null?s.dist:0, unit:s.unit||'m'}))};
+  }
+  return {kind:'fartlek', repeat:1, segments:[{effort:'hard', timeSec:0, dist:0, unit:'m'},{effort:'easy', timeSec:0, dist:0, unit:'m'}]};
+}
 // migrate any stored/legacy actual object into the canonical per-rep shape above.
 // legacy format was {distance,unit,restSec,times:[sec,...]} (one shared distance for all reps)
 function normalizeActual(aw){
@@ -2123,7 +2182,11 @@ function openRunModal(dateISO, editId=null, forceMode=null, preserve=false){
   if(!preserve){ draftSets = r&&r.workout ? JSON.parse(JSON.stringify(r.workout.sets)) : [{reps:6,effort:'400m',target:'',rest:'90s'}]; }
   if(!preserve){
     const aw = r&&r.workout&&r.workout.actual;
-    actualWorkout = normalizeActual(aw);
+    // each structured type gets its own logger — load the stored actual into the one
+    // matching this run's type, and start the others fresh
+    actualWorkout = normalizeActual(type==='interval' ? aw : null);
+    actualTempo   = normalizeTempo(type==='tempo' ? aw : null);
+    actualFartlek = normalizeFartlek(type==='fartlek' ? aw : null);
   }
   if(!preserve){
     const wu0 = r&&r.workout ? r.workout.warmup : {dist:0,dur:10};
@@ -2186,13 +2249,8 @@ function openRunModal(dateISO, editId=null, forceMode=null, preserve=false){
           </div>
         </div>
         <div id="actualWorkoutWrap" style="display:${isPlan?'none':'block'}">
-          <div class="field"><label>⚡ Log your actual reps</label>
-            <div class="aw-mode" id="awMode">
-              <button type="button" data-varied="0" class="${actualWorkout.varied?'':'sel'}" onclick="setActualVaried(false)">🔁 Same distance</button>
-              <button type="button" data-varied="1" class="${actualWorkout.varied?'sel':''}" onclick="setActualVaried(true)">🪜 Mixed / ladder</button>
-            </div>
+          <div class="field"><label id="awLabel">⚡ Log your actual reps</label>
             <div id="actualBuilder"></div>
-            <div class="help" style="margin-top:10px"><b>Same distance</b> for straight sets like 10×800m · <b>Mixed / ladder</b> when each rep differs (e.g. mile, 1&nbsp;km, mile, 1&nbsp;km) — set the distance <i>and</i> rest per rep. Total distance &amp; time auto-fill from these reps plus your warm-up/cool-down.</div>
           </div>
         </div>
         <div class="field"><label style="font-size:11px;color:var(--muted);font-weight:700">💧 COOL-DOWN</label>
@@ -2337,10 +2395,166 @@ function renderActualRowPace(i){
   const el=document.querySelector(`.aw-row[data-i="${i}"] .awp`); if(!el) return;
   el.innerHTML=`${repPaceStr(actualWorkout.reps[i])}<small> pace</small>`;
 }
-// full rebuild — used on open, mode-switch and varied toggle (structure changes)
+// dispatch the "actual" logger to the right builder for this run type — intervals,
+// tempo and fartlek are genuinely different workouts and each gets its own inputs
 function renderActualBuilder(){
   const host=$('#actualBuilder'); if(!host) return;
+  const lbl=$('#awLabel');
+  if(draftType==='tempo'){ if(lbl) lbl.innerHTML='🔥 Log your tempo effort'; renderTempoBuilder(host); return; }
+  if(draftType==='fartlek'){ if(lbl) lbl.innerHTML='🎲 Log your fartlek'; renderFartlekBuilder(host); return; }
+  if(lbl) lbl.innerHTML='⚡ Log your actual reps';
+  renderIntervalBuilder(host);
+}
+/* ---------- TEMPO logger: sustained effort(s) with time + distance ---------- */
+function tempoPaceStr(s){ const km=repDistToKm(s.dist,s.unit); if(!km||!s.timeSec) return '—'; return paceSecToStr(s.timeSec/km)+'/'+unitLabel(); }
+function tempoRowHTML(s,i){
+  const m=Math.floor(s.timeSec/60), sec=s.timeSec%60;
+  const multi=actualTempo.segments.length>1;
+  return `<div class="tempo-row" data-i="${i}">
+    <div class="awn">${multi?('#'+(i+1)):'🔥'}</div>
+    <div class="awt">
+      <input type="number" min="0" value="${s.timeSec?m:''}" placeholder="mm" oninput="setTempoTime(${i},'m',this.value)">
+      <span style="color:var(--muted);font-weight:800">:</span>
+      <input type="number" min="0" max="59" value="${s.timeSec?String(sec).padStart(2,'0'):''}" placeholder="ss" oninput="setTempoTime(${i},'s',this.value)">
+    </div>
+    <div class="iu-group">
+      <input type="number" step="0.01" min="0" value="${s.dist||''}" placeholder="dist covered" oninput="setTempoDist(${i},this.value)">
+      <select class="iu-suffix iu-select" onchange="setTempoUnit(${i},this.value)">
+        <option value="km" ${s.unit==='km'?'selected':''}>km</option>
+        <option value="m" ${s.unit==='m'?'selected':''}>m</option>
+        <option value="mi" ${s.unit==='mi'?'selected':''}>mi</option>
+      </select>
+    </div>
+    <div class="awp">${tempoPaceStr(s)}<small> pace</small></div>
+    ${multi?`<button class="x" onclick="removeTempoSeg(${i})" title="Remove block">×</button>`:'<span></span>'}
+  </div>`;
+}
+function renderTempoBuilder(host){
+  const rows=actualTempo.segments.map((s,i)=>tempoRowHTML(s,i)).join('');
+  host.innerHTML=`<div class="tempo-head2"><span></span><span>Time</span><span>Distance covered</span><span>Pace</span><span></span></div>
+    <div id="tempoRows">${rows}</div>
+    <button class="add-set" style="margin-top:8px" onclick="addTempoSeg()">＋ Add tempo block</button>
+    <div id="awSummary"></div>
+    <div class="help" style="margin-top:10px">A tempo is one sustained "comfortably hard" effort — just enter the <b>time</b> you ran and the <b>distance</b> you covered (e.g. <b>20:00</b> for <b>5.03&nbsp;km</b>) and the pace auto-calculates. Add a block only if you did a broken tempo (e.g. 2 × 10&nbsp;min). Total distance &amp; time auto-fill from this plus your warm-up/cool-down.</div>`;
+  recalcTempoTotals();
+}
+function setTempoTime(i,which,val){
+  const s=actualTempo.segments[i]; let m=Math.floor(s.timeSec/60), sec=s.timeSec%60;
+  if(which==='m') m=Math.max(0,parseInt(val)||0); else sec=Math.max(0,Math.min(59,parseInt(val)||0));
+  s.timeSec=m*60+sec; renderTempoRowPace(i); recalcTempoTotals();
+}
+function setTempoDist(i,val){ actualTempo.segments[i].dist=parseFloat(val)||0; renderTempoRowPace(i); recalcTempoTotals(); }
+function setTempoUnit(i,val){ actualTempo.segments[i].unit=val; renderTempoRowPace(i); recalcTempoTotals(); }
+function renderTempoRowPace(i){ const el=document.querySelector(`.tempo-row[data-i="${i}"] .awp`); if(el) el.innerHTML=`${tempoPaceStr(actualTempo.segments[i])}<small> pace</small>`; }
+function addTempoSeg(){ if(actualTempo.segments.length>=20){ toast('Max 20 blocks'); return; } actualTempo.segments.push({timeSec:0,dist:0,unit:actualTempo.segments[0].unit||'km'}); renderTempoBuilder($('#actualBuilder')); }
+function removeTempoSeg(i){ actualTempo.segments.splice(i,1); if(!actualTempo.segments.length) actualTempo.segments.push({timeSec:0,dist:0,unit:'km'}); renderTempoBuilder($('#actualBuilder')); }
+function recalcTempoTotals(){
+  const wrap=$('#actualWorkoutWrap'); if(!wrap || wrap.style.display==='none') return;
+  let totalKm=0, totalSec=0;
+  actualTempo.segments.forEach(s=>{ totalKm+=repDistToKm(s.dist,s.unit); totalSec+=s.timeSec; });
+  const avg=totalKm?totalSec/totalKm:0;
+  const sumEl=$('#awSummary');
+  if(sumEl){
+    sumEl.innerHTML=(totalKm>0||totalSec>0)?`<div class="aw-summary">
+      <div>Tempo distance<b>${fmtDist(totalKm)} ${unitLabel()}</b></div>
+      <div>Tempo time<b>${secToClock(totalSec)}</b></div>
+      <div>Avg tempo pace<b>${avg?paceSecToStr(avg)+'/'+unitLabel():'—'}</b></div>
+    </div>`:'';
+  }
+  const grandKm=totalKm+wuCdDistKm(draftWarmup)+wuCdDistKm(draftCooldown);
+  const grandSec=totalSec+wuCdDurMin(draftWarmup)*60+wuCdDurMin(draftCooldown)*60;
+  if(grandKm>0 && $('#f-dist')) $('#f-dist').value=fmtDist(grandKm,2);
+  if(grandSec>0 && $('#f-dur-h')){ const w=Math.round(grandSec); $('#f-dur-h').value=Math.floor(w/3600); if($('#f-dur-min')) $('#f-dur-min').value=Math.floor((w%3600)/60); if($('#f-dur-sec')) $('#f-dur-sec').value=w%60; }
+}
+/* ---------- FARTLEK logger: repeatable sequence of effort segments ---------- */
+// each segment has a duration and an OPTIONAL distance (for GPS-measured surges)
+function fkPaceStr(s){ const km=repDistToKm(s.dist,s.unit); if(!km||!s.timeSec) return '—'; return paceSecToStr(s.timeSec/km)+'/'+unitLabel(); }
+function fkRowHTML(s,i){
+  const m=Math.floor(s.timeSec/60), sec=s.timeSec%60;
+  const eff=FK_EFF[s.effort]||FK_EFF.hard;
+  const opts=Object.keys(FK_EFF).map(k=>`<option value="${k}" ${s.effort===k?'selected':''}>${FK_EFF[k].label}</option>`).join('');
+  return `<div class="fk-row" data-i="${i}" style="border-left:4px solid ${eff.color}">
+    <div class="awn">${i+1}</div>
+    <select class="fk-eff" onchange="setFkEffort(${i},this.value)">${opts}</select>
+    <div class="awt">
+      <input type="number" min="0" value="${s.timeSec?m:''}" placeholder="mm" oninput="setFkTime(${i},'m',this.value)">
+      <span style="color:var(--muted);font-weight:800">:</span>
+      <input type="number" min="0" max="59" value="${s.timeSec?String(sec).padStart(2,'0'):''}" placeholder="ss" oninput="setFkTime(${i},'s',this.value)">
+    </div>
+    <div class="iu-group">
+      <input type="number" step="0.01" min="0" value="${s.dist||''}" placeholder="opt." oninput="setFkDist(${i},this.value)">
+      <select class="iu-suffix iu-select" onchange="setFkUnit(${i},this.value)">
+        <option value="m" ${s.unit==='m'?'selected':''}>m</option>
+        <option value="km" ${s.unit==='km'?'selected':''}>km</option>
+        <option value="mi" ${s.unit==='mi'?'selected':''}>mi</option>
+      </select>
+    </div>
+    <div class="awp">${fkPaceStr(s)}<small> pace</small></div>
+    <button class="x" onclick="removeFkSeg(${i})" title="Remove segment">×</button>
+  </div>`;
+}
+function renderFartlekBuilder(host){
+  const fk=actualFartlek;
+  const rows=fk.segments.map((s,i)=>fkRowHTML(s,i)).join('');
+  host.innerHTML=`<div class="fk-head"><span></span><span>Effort</span><span>Duration</span><span>Distance <span style="text-transform:none;letter-spacing:0;font-weight:600">(optional)</span></span><span>Pace</span><span></span></div>
+    <div id="fkRows">${rows}</div>
+    <button class="add-set" style="margin-top:8px" onclick="addFkSeg()">＋ Add segment</button>
+    <div class="fk-repeat">
+      <span style="font-weight:700">🔁 Repeat whole sequence</span>
+      <input type="number" min="1" max="20" value="${fk.repeat}" oninput="setFkRepeat(this.value)">
+      <span style="color:var(--muted)">time(s)</span>
+    </div>
+    <div id="awSummary"></div>
+    <div class="help" style="margin-top:10px">Build <b>one cycle</b> of your fartlek — e.g. <b>3&nbsp;min Hard, 2&nbsp;min Easy, 2&nbsp;min Hard, 1&nbsp;min Easy, 1&nbsp;min Hard, 2&nbsp;min Easy</b> — then set <b>Repeat</b> to how many times you ran that cycle (e.g. ×2). <b>Distance is optional</b> per segment — add it for GPS-measured surges and the pace shows automatically. Total time (and distance, if entered) auto-fills.</div>`;
+  recalcFartlekTotals();
+}
+function setFkEffort(i,v){ actualFartlek.segments[i].effort=FK_EFF[v]?v:'hard'; renderFartlekBuilder($('#actualBuilder')); }
+function setFkTime(i,which,val){
+  const s=actualFartlek.segments[i]; let m=Math.floor(s.timeSec/60), sec=s.timeSec%60;
+  if(which==='m') m=Math.max(0,parseInt(val)||0); else sec=Math.max(0,Math.min(59,parseInt(val)||0));
+  s.timeSec=m*60+sec; renderFkRowPace(i); recalcFartlekTotals();
+}
+function setFkDist(i,val){ actualFartlek.segments[i].dist=parseFloat(val)||0; renderFkRowPace(i); recalcFartlekTotals(); }
+function setFkUnit(i,val){ actualFartlek.segments[i].unit=val; renderFkRowPace(i); recalcFartlekTotals(); }
+function renderFkRowPace(i){ const el=document.querySelector(`.fk-row[data-i="${i}"] .awp`); if(el) el.innerHTML=`${fkPaceStr(actualFartlek.segments[i])}<small> pace</small>`; }
+function setFkRepeat(v){ actualFartlek.repeat=Math.max(1,Math.min(20,parseInt(v)||1)); recalcFartlekTotals(); }
+function addFkSeg(){
+  if(actualFartlek.segments.length>=30){ toast('Max 30 segments'); return; }
+  const last=actualFartlek.segments[actualFartlek.segments.length-1];
+  const nextEff=last&&last.effort==='hard'?'easy':'hard';
+  actualFartlek.segments.push({effort:nextEff, timeSec:0, dist:0, unit:last?last.unit:'m'});
+  renderFartlekBuilder($('#actualBuilder'));
+}
+function removeFkSeg(i){ actualFartlek.segments.splice(i,1); if(!actualFartlek.segments.length) actualFartlek.segments.push({effort:'hard',timeSec:0,dist:0,unit:'m'}); renderFartlekBuilder($('#actualBuilder')); }
+function recalcFartlekTotals(){
+  const wrap=$('#actualWorkoutWrap'); if(!wrap || wrap.style.display==='none') return;
+  const fk=actualFartlek;
+  let cycleSec=0, hardSec=0, easySec=0, modSec=0, cycleKm=0;
+  fk.segments.forEach(s=>{ cycleSec+=s.timeSec; cycleKm+=repDistToKm(s.dist,s.unit); if(s.effort==='hard') hardSec+=s.timeSec; else if(s.effort==='moderate') modSec+=s.timeSec; else easySec+=s.timeSec; });
+  const reps=fk.repeat, totalSec=cycleSec*reps, totalKm=cycleKm*reps;
+  const sumEl=$('#awSummary');
+  if(sumEl){
+    sumEl.innerHTML=totalSec>0?`<div class="aw-summary">
+      <div>Total work time<b>${secToClock(totalSec)}</b></div>
+      ${totalKm>0?`<div>Total distance<b>${fmtDist(totalKm)} ${unitLabel()}</b></div>`:''}
+      <div>Hard<b>${secToClock(hardSec*reps)}</b></div>
+      <div>Easy / moderate<b>${secToClock((easySec+modSec)*reps)}</b></div>
+      <div>Segments<b>${fk.segments.length}${reps>1?' × '+reps:''}</b></div>
+    </div>`:'';
+  }
+  const grandSec=totalSec+wuCdDurMin(draftWarmup)*60+wuCdDurMin(draftCooldown)*60;
+  const grandKm=totalKm+wuCdDistKm(draftWarmup)+wuCdDistKm(draftCooldown);
+  if(grandSec>0 && $('#f-dur-h')){ const w=Math.round(grandSec); $('#f-dur-h').value=Math.floor(w/3600); if($('#f-dur-min')) $('#f-dur-min').value=Math.floor((w%3600)/60); if($('#f-dur-sec')) $('#f-dur-sec').value=w%60; }
+  if(grandKm>0 && $('#f-dist')) $('#f-dist').value=fmtDist(grandKm,2);
+}
+/* ---------- INTERVAL logger (same-distance or mixed/ladder reps) ---------- */
+// full rebuild — used on open, mode-switch and varied toggle (structure changes)
+function renderIntervalBuilder(host){
   const aw=actualWorkout;
+  const modeToggle=`<div class="aw-mode" id="awMode">
+      <button type="button" data-varied="0" class="${aw.varied?'':'sel'}" onclick="setActualVaried(false)">🔁 Same distance</button>
+      <button type="button" data-varied="1" class="${aw.varied?'sel':''}" onclick="setActualVaried(true)">🪜 Mixed / ladder</button>
+    </div>`;
   let setup='', head='';
   if(!aw.varied){
     setup=`<div class="aw-setup">
@@ -2363,7 +2577,8 @@ function renderActualBuilder(){
     head=`<div class="aw-head"><span>#</span><span>Distance</span><span>Time</span><span>Rest after</span><span>Pace</span><span></span></div>`;
   }
   const addBtn = aw.varied ? `<button class="add-set" style="margin-top:8px" onclick="addActualRep()">＋ Add rep</button>` : '';
-  host.innerHTML = setup + head + `<div id="awRows" class="aw-reps"></div>` + addBtn + `<div id="awSummary"></div>`;
+  const helpTxt = `<div class="help" style="margin-top:10px"><b>Same distance</b> for straight sets like 10×800m · <b>Mixed / ladder</b> when each rep differs (e.g. mile, 1&nbsp;km, mile, 1&nbsp;km) — set the distance <i>and</i> rest per rep. Total distance &amp; time auto-fill from these reps plus your warm-up/cool-down.</div>`;
+  host.innerHTML = modeToggle + setup + head + `<div id="awRows" class="aw-reps"></div>` + addBtn + `<div id="awSummary"></div>` + helpTxt;
   renderActualRows();
 }
 // light rebuild — only the rep rows + summary, so setup inputs keep focus while typing
@@ -2484,8 +2699,31 @@ function saveRun(editId){
       workout={ warmup:wuF, cooldown:cdF,
         sets:draftSets.filter(s=>s.effort).map(s=>({reps:+s.reps||1,effort:s.effort,target:s.target,rest:s.rest})),
         actual:null };
+    } else if(type==='tempo'){
+      // logging an actual tempo — sustained effort(s), each with time + distance
+      const tp=actualTempo;
+      let totalKm=0, totalSec=0;
+      tp.segments.forEach(s=>{ totalKm+=repDistToKm(s.dist,s.unit); totalSec+=s.timeSec; });
+      const avg = totalKm ? totalSec/totalKm : 0;
+      const target = avg ? paceSecToStr(avg)+'/'+unitLabel()+' avg' : '';
+      let effort;
+      if(tp.segments.length>1){
+        effort = tp.segments.map(s=>`${secToClock(s.timeSec)}${s.dist?(' / '+s.dist+s.unit):''}`).join(' + ');
+      } else {
+        const s0=tp.segments[0];
+        effort = s0.timeSec ? `${secToClock(s0.timeSec)} tempo${s0.dist?(' · '+s0.dist+s0.unit):''}` : 'Tempo';
+      }
+      const summarySet={ reps:tp.segments.length, effort, target, rest:'', varied:true };
+      workout={ warmup:wuF, cooldown:cdF, sets:[summarySet], actual:JSON.parse(JSON.stringify({kind:'tempo',segments:tp.segments})) };
+    } else if(type==='fartlek'){
+      // logging an actual fartlek — one sequence of effort segments, repeated N times
+      const fk=actualFartlek;
+      const seq=fk.segments.map(s=>`${secToClock(s.timeSec)} ${(FK_EFF[s.effort]||FK_EFF.hard).label.toLowerCase()}${s.dist?(' ('+s.dist+s.unit+')'):''}`).join(', ');
+      const effort = fk.repeat>1 ? `(${seq}) × ${fk.repeat}` : seq;
+      const summarySet={ reps:fk.segments.length*fk.repeat, effort, target:'', rest:'', varied:true };
+      workout={ warmup:wuF, cooldown:cdF, sets:[summarySet], actual:JSON.parse(JSON.stringify({kind:'fartlek',repeat:fk.repeat,segments:fk.segments})) };
     } else {
-      // logging actual reps via the "Log your actual reps" builder
+      // logging actual reps via the "Log your actual reps" builder (intervals)
       const aw=actualWorkout;
       let timedKm=0, timedSec=0;
       aw.reps.forEach(r=>{ if(r.timeSec>0){ timedKm+=repDistToKm(r.dist,r.unit); timedSec+=r.timeSec; } });
@@ -2518,6 +2756,32 @@ function saveRun(editId){
   save(); closeModal(); render(); toast(editId?'Updated ✓':(planned?'Workout prescribed ✓':'Run logged ✓'));
 }
 
+/* ---------- Structured-actual detail renderers ---------- */
+function tempoDetailHTML(act){
+  const segs=(act.segments||[]).filter(s=>s.timeSec>0||s.dist>0);
+  if(!segs.length) return '';
+  const rows=segs.map((s,i)=>{
+    const km=repDistToKm(s.dist,s.unit);
+    const pace=km&&s.timeSec?paceSecToStr(s.timeSec/km)+'/'+unitLabel():'';
+    const distTxt=s.dist?`${s.dist}${s.unit}`:'';
+    const label=segs.length>1?`Block ${i+1}`:'Tempo';
+    return `<div class="wk-set"><span class="rep">${label}</span><span style="font-weight:700">${secToClock(s.timeSec)}${distTxt?' · '+esc(distTxt):''}</span><span style="margin-left:auto;color:var(--muted)">${pace}</span></div>`;
+  }).join('');
+  return `<div class="wk-block"><div class="h">🔥 Tempo effort</div>${rows}</div>`;
+}
+function fartlekDetailHTML(act){
+  const segs=act.segments||[];
+  if(!segs.length) return '';
+  const rows=segs.map((s)=>{
+    const eff=FK_EFF[s.effort]||FK_EFF.hard;
+    const km=repDistToKm(s.dist,s.unit);
+    const pace=km&&s.timeSec?paceSecToStr(s.timeSec/km)+'/'+unitLabel():'';
+    const distTxt=s.dist?`${s.dist}${s.unit}`:'';
+    return `<div class="wk-set"><span class="rep" style="color:${eff.color}">${eff.label}</span><span style="font-weight:700">${secToClock(s.timeSec)}${distTxt?' · '+esc(distTxt):''}</span><span style="margin-left:auto;color:var(--muted)">${pace}</span></div>`;
+  }).join('');
+  const rep=act.repeat>1?`<div style="margin-top:8px;color:var(--muted);font-size:12px">↻ Whole sequence repeated × ${act.repeat}</div>`:'';
+  return `<div class="wk-block"><div class="h">🎲 Fartlek sequence</div>${rows}${rep}</div>`;
+}
 /* ---------- Run detail ---------- */
 function openRunDetail(id){
   const a=currentAthlete(); const r=a.runs.find(x=>x.id===id); if(!r) return;
@@ -2527,7 +2791,9 @@ function openRunDetail(id){
     const setHtml=r.workout.sets.map(s=>`<div class="wk-set">${s.varied?'':`<span class="rep">${s.reps}×</span>`}<span style="font-weight:700">${esc(s.effort)}</span>
       ${s.target?`<span style="color:var(--muted)">@ ${esc(s.target)}</span>`:''}${s.rest?`<span style="margin-left:auto;color:var(--muted)">rest ${esc(s.rest)}</span>`:''}</div>`).join('');
     let repBlk='';
-    if(r.workout.actual){
+    if(r.workout.actual && r.workout.actual.kind==='tempo'){ repBlk=tempoDetailHTML(r.workout.actual); }
+    else if(r.workout.actual && r.workout.actual.kind==='fartlek'){ repBlk=fartlekDetailHTML(r.workout.actual); }
+    else if(r.workout.actual){
       const aw=normalizeActual(r.workout.actual);
       if(aw.reps.some(x=>x.timeSec>0)){
         const rows=aw.reps.map((x,i)=>{
